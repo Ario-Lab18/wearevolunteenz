@@ -28,5 +28,7 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We are accessing the user's files (photo library included) so that they may attach any online documents or files they have to their email.</string>
 </dict>
 </plist>

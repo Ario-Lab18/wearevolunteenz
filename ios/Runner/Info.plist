@@ -65,5 +65,11 @@
 	</array>
 	<!-- End of the Google Sign-in Section -->
 
+	
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>The app allows user to select files (eg: Resume) from their device to be included in their communication with volunteer organizations.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+
 </dict>
 </plist>
