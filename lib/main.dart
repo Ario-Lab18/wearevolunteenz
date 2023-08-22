@@ -9,6 +9,20 @@ import 'dart:io';
 
 var orgs = [
   {
+'name': 'TEST ONLY Civil Air Patrol',
+'info': ['aerospace', 'space', 'stem', 'science', 'camps'],
+'address': '105 S. Hansell Street, Maxwell AFB, AL 36112',
+'website': 'https://www.gocivilairpatrol.com/',
+'email': 'ario.lab18@gmail.com',
+},
+{
+'name': 'TEST ONLY Adopt a Park',
+'info': [],
+'address': '',
+'website': 'http://partners.sanjosemayor.org/servesj',
+'email': 'ario.lab18@gmail.com',
+},
+{
 'name': 'Civil Air Patrol',
 'info': ['aerospace', 'space', 'stem', 'science', 'camps'],
 'address': '105 S. Hansell Street, Maxwell AFB, AL 36112',
@@ -2224,7 +2238,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         padding:
                             const EdgeInsets.only(bottom: 8, left: 8, right: 8),
                         child: ListTile(
-                          shape: RoundedRectangleBorder(
+                          shape: const RoundedRectangleBorder(
                               side: BorderSide(color: Colors.black, width: 1),
                               borderRadius: BorderRadius.only(
                                   topLeft: Radius.circular(5),
@@ -2686,7 +2700,7 @@ void showSnackBar(String text, context, color) {
 
 class GoogleSignInApi {
   static final _googleSignIn =
-      GoogleSignIn(scopes: ['https://mail.google.com/']);
+      GoogleSignIn(scopes: ['https://www.googleapis.com/auth/gmail.send']);
 
   static Future<GoogleSignInAccount?> signin(theme, context) async {
     /*
