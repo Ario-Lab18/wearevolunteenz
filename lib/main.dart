@@ -6,6 +6,14 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+/*
+git add <files>
+git commit -m "<comment>"
+git push origin main
+*/
 
 var orgs = [
   {
@@ -2884,34 +2892,92 @@ class _Message_PageState extends State<Message_Page> {
               ),
             ),
             Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(8),
-                child: ElevatedButton(
-                  onPressed: () {
-                    GoogleSignInApi.signOut();
-                  },
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text("Signout",
-                        style: TextStyle(
-                            fontFamily: 'Roboto',
-                            color: Colors.black
-                        )
+                child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        GoogleSignInApi.signOut();
+                      },
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text("Signout",
+                              style: TextStyle(
+                                  fontFamily: 'Roboto', color: Colors.black)),
+                        ],
                       ),
-                    ],
-                  ),
-                )
-              )
-            )
+                    )))
           ],
         ),
       ),
     );
   }
 
+  Future<Null> testingEmail(String from, result, String to) async {
+    var content = '''
+Content-Type: text/html; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+to: ${to}
+from: ${from}
+subject: ${msgSubj}
+
+${msgBody}''';
+
+    var bytes = utf8.encode(content);
+    var base64 = base64Encode(bytes);
+    var body = json.encode({'raw': base64});
+
+    String url =
+        'https://www.googleapis.com/gmail/v1/users/' + from + '/messages/send';
+
+    final http.Response response =
+        await http.post(Uri.parse(url), headers: {
+          'Authorization': result['Authorization'],
+          'X-Goog-AuthUser': result['X-Goog-AuthUser'],
+          'Accept': 'application/json',
+          'Content-type': 'application/json'
+        }, body: body);
+    final Map<String, dynamic> data = json.decode(response.body);
+
+    if (response.statusCode != 200) {
+      setState(() {
+        print('error: ' + response.statusCode.toString());
+        print(json.decode(response.body));
+        print(data);
+      });
+      return;
+    }
+    print('ok: ' + response.statusCode.toString());
+  }
+
   Future sendEmail() async {
+    final theme = Theme.of(context);
+    final googleSignIn =
+      GoogleSignIn(scopes: ['https://www.googleapis.com/auth/gmail.send']);
+    await googleSignIn.signIn().then((data) async {
+      await data?.authHeaders.then((result) async {
+        var i = 0;
+        for (var s in selectedItems) {
+          try {
+            await testingEmail(data.email, result, s.email);
+            i = i + 1;
+          } on MailerException catch (e) {
+            showSnackBar('${e.toString()}', context, theme.colorScheme.error);
+          }
+        }
+        if (i == selectedItems.length) {
+          showSnackBar('Sent all emails', context, theme.colorScheme.secondary);
+        } else {
+          showSnackBar('Sent ${i} of ${selectedItems.length} emails', context,
+          theme.colorScheme.error);
+        }
+      });
+    });
+  }
+
+  Future sendEmailOld() async {
     final theme = Theme.of(context);
     final user = await GoogleSignInApi.signin(theme, context);
 
@@ -3049,7 +3115,7 @@ class GoogleSignInApi {
         showSnackBar("${err.toString()}", context, theme.colorScheme.error);
         return null;
       }
-    } 
+    }
   }
 
   static Future signOut() => _googleSignIn.signOut();
