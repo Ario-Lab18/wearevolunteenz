@@ -17,6 +17,7 @@ dependencies:
   mailer: ^5.0.1
   google_sign_in: ^5.0.3
   http: ^1.1.0
+  mime: ^1.0.4
   
 
 dev_dependencies:

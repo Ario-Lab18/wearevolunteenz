@@ -8,6 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:mime/mime.dart';
 
 /*
 git add <files>
@@ -2752,9 +2753,10 @@ class _Message_PageState extends State<Message_Page> {
 
   final List<Items> selectedItems;
 
-  String _fileText = '';
+  // String _fileText = '';
   String msgBody = '';
   String msgSubj = '';
+  String filePath = '';
 
   void _handleBody(String input) {
     setState(() {
@@ -2781,11 +2783,9 @@ class _Message_PageState extends State<Message_Page> {
       print(file.size);
       print(file.extension);
       print(file.path);
-
-      /// normal file
       File _file = File(result.files.single.path!);
       setState(() {
-        _fileText = _file.path;
+        filePath = _file.path;
       });
     } else {
       /// User canceled the picker
@@ -2855,7 +2855,7 @@ class _Message_PageState extends State<Message_Page> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: theme.colorScheme.secondary,
                   ),
-                  child: _fileText.isEmpty
+                  child: filePath.isEmpty
                       ? const Icon(Icons.note_add_outlined, color: Colors.black)
                       : const Icon(Icons.task_outlined, color: Colors.black),
                   onPressed: () {
@@ -2915,15 +2915,43 @@ class _Message_PageState extends State<Message_Page> {
   }
 
   Future<Null> testingEmail(String from, result, String to) async {
+
     var content = '''
-Content-Type: text/html; charset="us-ascii"
+Content-Type: multipart/mixed; boundary="foo_bar_baz"
+MIME-Version: 1.0
+From: ${from}
+To: ${to}
+Subject: ${msgSubj}
+
+--foo_bar_baz
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-to: ${to}
-from: ${from}
-subject: ${msgSubj}
 
-${msgBody}''';
+${msgBody}
+
+''';
+
+
+if (filePath.isNotEmpty) {
+      String fileInBase64 = base64Encode(File(filePath).readAsBytesSync());
+
+      final mimeType = lookupMimeType(filePath);
+      final fileName = filePath.split('/').last;
+      content = content + '''
+--foo_bar_baz
+Content-Type: ${mimeType}
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="${fileName}"
+
+${fileInBase64}
+
+''';
+    }
+    content = content + '''
+--foo_bar_baz--
+''';
 
     var bytes = utf8.encode(content);
     var base64 = base64Encode(bytes);
@@ -2932,13 +2960,14 @@ ${msgBody}''';
     String url =
         'https://www.googleapis.com/gmail/v1/users/' + from + '/messages/send';
 
-    final http.Response response =
-        await http.post(Uri.parse(url), headers: {
+    final http.Response response = await http.post(Uri.parse(url),
+        headers: {
           'Authorization': result['Authorization'],
           'X-Goog-AuthUser': result['X-Goog-AuthUser'],
           'Accept': 'application/json',
           'Content-type': 'application/json'
-        }, body: body);
+        },
+        body: body);
     final Map<String, dynamic> data = json.decode(response.body);
 
     if (response.statusCode != 200) {
@@ -2955,7 +2984,7 @@ ${msgBody}''';
   Future sendEmail() async {
     final theme = Theme.of(context);
     final googleSignIn =
-      GoogleSignIn(scopes: ['https://www.googleapis.com/auth/gmail.send']);
+        GoogleSignIn(scopes: ['https://www.googleapis.com/auth/gmail.send']);
     await googleSignIn.signIn().then((data) async {
       await data?.authHeaders.then((result) async {
         var i = 0;
@@ -2971,7 +3000,7 @@ ${msgBody}''';
           showSnackBar('Sent all emails', context, theme.colorScheme.secondary);
         } else {
           showSnackBar('Sent ${i} of ${selectedItems.length} emails', context,
-          theme.colorScheme.error);
+              theme.colorScheme.error);
         }
       });
     });
@@ -2997,8 +3026,8 @@ ${msgBody}''';
       ..text = msgBody
       ..from = Address(email, user.displayName);
 
-    if (_fileText.isNotEmpty) {
-      message.attachments.add(FileAttachment(File(_fileText)));
+    if (filePath.isNotEmpty) {
+      message.attachments.add(FileAttachment(File(filePath)));
     }
 
     var i = 0;
