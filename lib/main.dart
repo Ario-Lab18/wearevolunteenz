@@ -2934,7 +2934,7 @@ ${msgBody}
 
 
 if (filePath.isNotEmpty) {
-      String fileInBase64 = base64Encode(File(filePath).readAsBytesSync());
+      String fileInBase64 = base64Encode(await File(filePath).readAsBytes());
 
       final mimeType = lookupMimeType(filePath);
       final fileName = filePath.split('/').last;
