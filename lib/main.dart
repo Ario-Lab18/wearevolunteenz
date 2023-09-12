@@ -2984,6 +2984,11 @@ ${fileInBase64}
   Future sendEmail() async {
     final theme = Theme.of(context);
     final user = await GoogleSignInApi.signin(theme, context);
+
+    if (user == null) {
+      showSnackBar('Google authentication failed', context, theme.colorScheme.error);
+      return;
+    }
     final auth = await user.authHeaders;
   
     var i = 0;
