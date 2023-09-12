@@ -2983,6 +2983,26 @@ ${fileInBase64}
 
   Future sendEmail() async {
     final theme = Theme.of(context);
+    final user = await GoogleSignInApi.signin(theme, context);
+    final auth = await user.authHeaders;
+  
+    var i = 0;
+    for (var s in selectedItems) {
+      try {
+        await testingEmail(user.email, auth, s.email);
+        i = i + 1;
+      } on MailerException catch (e) {
+        showSnackBar('${e.toString()}', context, theme.colorScheme.error);
+      }
+    }
+    if (i == selectedItems.length) {
+      showSnackBar('Sent all emails', context, theme.colorScheme.secondary);
+    } else {
+      showSnackBar('Sent ${i} of ${selectedItems.length} emails', context,
+          theme.colorScheme.error);
+    }
+  
+  /*
     final googleSignIn =
         GoogleSignIn(scopes: ['https://www.googleapis.com/auth/gmail.send']);
     await googleSignIn.signIn().then((data) async {
@@ -3004,6 +3024,7 @@ ${fileInBase64}
         }
       });
     });
+  */
   }
 
   Future sendEmailOld() async {
