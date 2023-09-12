@@ -2886,6 +2886,7 @@ class _Message_PageState extends State<Message_Page> {
                   onPressed: () {
                     if (!(msgBody.isEmpty || msgSubj.isEmpty)) {
                       sendEmail();
+                      Navigator.pop(context);
                     }
                   },
                 ),
