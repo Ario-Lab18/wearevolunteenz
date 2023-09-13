@@ -9,6 +9,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mime/mime.dart';
+import 'package:path_provider/path_provider.dart';
 
 /*
 git add <files>
@@ -2784,9 +2785,24 @@ class _Message_PageState extends State<Message_Page> {
       print(file.extension);
       print(file.path);
       File _file = File(result.files.single.path!);
+
+      // https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ
+      // https://github.com/miguelpruivo/flutter_file_picker/issues/301
+      Directory _directory = await getApplicationDocumentsDirectory();
+      String _dir = _directory.path + "/" + file.name;
+      print(_dir);
+      try {
+        // This will try first to just rename the file if they are on the same directory,
+        await _file.rename(_dir);
+      } on FileSystemException catch (e) {
+        // if the rename method fails, it will copy the original file to the new directory and then delete the original file
+        await _file.copy(_dir);
+        await _file.delete();
+      }
       setState(() {
-        filePath = _file.path;
+        filePath = _dir;
       });
+      print(filePath);
     } else {
       /// User canceled the picker
     }
@@ -2886,7 +2902,6 @@ class _Message_PageState extends State<Message_Page> {
                   onPressed: () {
                     if (!(msgBody.isEmpty || msgSubj.isEmpty)) {
                       sendEmail();
-                      Navigator.pop(context);
                     }
                   },
                 ),
@@ -2916,7 +2931,7 @@ class _Message_PageState extends State<Message_Page> {
   }
 
   Future<Null> testingEmail(String from, result, String to) async {
-
+    final theme = Theme.of(context);
     var content = '''
 Content-Type: multipart/mixed; boundary="foo_bar_baz"
 MIME-Version: 1.0
@@ -2933,13 +2948,15 @@ ${msgBody}
 
 ''';
 
+    if (filePath.isNotEmpty) {
+      try {
+        File fileRes = File(filePath);
+        String fileInBase64 = base64Encode(await fileRes.readAsBytes());
 
-if (filePath.isNotEmpty) {
-      String fileInBase64 = base64Encode(await File(filePath).readAsBytes());
-
-      final mimeType = lookupMimeType(filePath);
-      final fileName = filePath.split('/').last;
-      content = content + '''
+        final mimeType = lookupMimeType(filePath);
+        final fileName = filePath.split('/').last;
+        content = content +
+            '''
 --foo_bar_baz
 Content-Type: ${mimeType}
 MIME-Version: 1.0
@@ -2949,8 +2966,14 @@ Content-Disposition: attachment; filename="${fileName}"
 ${fileInBase64}
 
 ''';
+        await fileRes.delete();
+      } catch (err) {
+        showSnackBar("${err.toString()}", context, theme.colorScheme.error);
+        return null;
+      }
     }
-    content = content + '''
+    content = content +
+        '''
 --foo_bar_baz--
 ''';
 
@@ -2977,9 +3000,9 @@ ${fileInBase64}
         print(json.decode(response.body));
         print(data);
       });
-      return;
+    } else {
+      print('ok: ' + response.statusCode.toString());
     }
-    print('ok: ' + response.statusCode.toString());
   }
 
   Future sendEmail() async {
@@ -2987,11 +3010,12 @@ ${fileInBase64}
     final user = await GoogleSignInApi.signin(theme, context);
 
     if (user == null) {
-      showSnackBar('Google authentication failed', context, theme.colorScheme.error);
+      showSnackBar(
+          'Google authentication failed', context, theme.colorScheme.error);
       return;
     }
     final auth = await user.authHeaders;
-  
+
     var i = 0;
     for (var s in selectedItems) {
       try {
@@ -3007,8 +3031,8 @@ ${fileInBase64}
       showSnackBar('Sent ${i} of ${selectedItems.length} emails', context,
           theme.colorScheme.error);
     }
-  
-  /*
+
+    /*
     final googleSignIn =
         GoogleSignIn(scopes: ['https://www.googleapis.com/auth/gmail.send']);
     await googleSignIn.signIn().then((data) async {
