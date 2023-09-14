@@ -3181,7 +3181,7 @@ class GoogleSignInApi {
     }
 
     if (await _googleSignIn.isSignedIn() && _googleSignIn.currentUser != null) {
-      showSnackBar('Signed in: ${_googleSignIn.currentUser}', context,
+      showSnackBar('Signed in: ${_googleSignIn.currentUser?.displayName}', context,
           theme.colorScheme.secondary);
       return _googleSignIn.currentUser;
     } else {
