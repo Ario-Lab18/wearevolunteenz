@@ -2260,6 +2260,53 @@ var orgs = [
   },
 ];
 
+var opps = [
+  {
+    'org': 'San Jose Public Library - Willow Glen Branch',
+    'opportunity': 'Teens Reach',
+    'dateStart': '',
+    'dateEnd': '',
+    'description': '',
+    'requierments': '''
+      Age must be between the ages of 13-18 years old
+      Have a strong interest in the library and/or serving their community.
+      Enjoy working with people of all ages and cultures.
+      Be willing to learn new skills.
+      Submit paperwork signed by parent/guardian.
+      Complete a short virtual training
+      Create and log hours in BetterImpact Account (can be done with help of a staff member)
+      Must commit to volunteering for at least 3 months.''',
+    'training': 'Virtual',
+    'link': 'https://app.betterimpact.com/PublicEnterprise/EnterpriseActivity?enterpriseGuid=8370465d-3777-4b73-b24b-3efd11ca6c09&activityGuid=a2ccfcbe-e9f9-447d-b94e-83219e8f0186&searchUrl=https%253a%252f%252fapp.betterimpact.com%252fPublicEnterprise%252fEnterpriseSearch%253fEnterpriseGuid%253d8370465d-3777-4b73-b24b-3efd11ca6c09%2526SearchType%253dSuitabilityClassification%2526SearchId%253d1150',
+    'openings': '',
+    'location': 'Virtual',
+  },
+  {
+    'org': 'Happy Hollow Park & Zoo',
+    'opportunity': 'ZooTeen',
+    'dateStart': '',
+    'dateEnd': '',
+    'description': 'The ZooTeen Program is for teens who are interested in pursuing a career involving zookeeping, zoo education, veterinary care, conservation biology or other related field. ZooTeens work closely with our education and animal care teams. They conduct meet- and- greets and animal care routines, and they assist camp counselors with summer camp programs. Additional volunteer opportunities are available throughout the school year. The ZooTeen Program is highly competitive with limited availability. Applications are accepted November through February and selected applicants are invited to an interview. Applicants who are not selected are welcome to reapply the following season. Prior volunteer experience with animal handling, public speaking and/or working with children is beneficial but not required.',
+    'requierments': 'Ages 14 to 17',
+    'training': 'Virtual',
+    'link': 'https://app.betterimpact.com/PublicEnterprise/EnterpriseGvi?enterpriseGuid=8370465d-3777-4b73-b24b-3efd11ca6c09&gviGuid=6112e4ef-155d-4d79-8125-3c04761bfbec&searchUrl=https%253a%252f%252fapp.betterimpact.com%252fPublicEnterprise%252fEnterpriseSearch%253fEnterpriseGuid%253d8370465d-3777-4b73-b24b-3efd11ca6c09%2526SearchType%253dSuitabilityClassification%2526SearchId%253d2480',
+    'openings': '',
+    'location': '748 Story Rd, San Jose, CA 95112',
+  },
+  {
+    'org': 'San Jose Public Library - Bascom Branch',
+    'opportunity': 'Teen Book Reviewer',
+    'dateStart': '',
+    'dateEnd': '',
+    'description': 'Are you looking for a fun way to volunteer from home? San José Public Library is looking for avid book readers interested in writing book reviews. Each book you review counts as one hour of volunteering. You can write up to 10 reviews per quarter for a maximum of 10 hours. ',
+    'requierments': 'Age Must be at least 13+',
+    'training': 'Virtual',
+    'link': 'https://app.betterimpact.com/PublicEnterprise/EnterpriseActivity?enterpriseGuid=8370465d-3777-4b73-b24b-3efd11ca6c09&activityGuid=cbde7158-41f8-452d-89e6-46ef1a1059c1&searchUrl=https%253a%252f%252fapp.betterimpact.com%252fPublicEnterprise%252fEnterpriseSearch%253fEnterpriseGuid%253d8370465d-3777-4b73-b24b-3efd11ca6c09%2526SearchType%253dSuitabilityClassification%2526SearchId%253d2480',
+    'openings': '',
+    'location': 'Virtual',
+  }
+];
+
 class Items {
   final name;
   final info;
@@ -2270,14 +2317,30 @@ class Items {
   const Items(this.name, this.info, this.address, this.website, this.email);
 }
 
+class OppItems{
+  final org;
+  final opportunity;
+  final dateStart;
+  final dateEnd;
+  final description;
+  final requierments;
+  final training;
+  final link;
+  final openings;
+  final location;
+
+  const OppItems(this.org, this.opportunity, this.dateStart, this.dateEnd, this.description, this.requierments, this.training, this.link, this.openings, this.location);
+}
+
 void main() {
   runApp(
-    const MyApp(),
+    MyApp(),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+   MyApp({super.key});
+  final listLength = (opps.length + orgs.length);
 
   @override
   Widget build(BuildContext context) {
@@ -2299,7 +2362,7 @@ class MyApp extends StatelessWidget {
           //primaryColor: Color.fromARGB(255, 0, 206, 203),
           //primarySwatch:  Color.fromARGB(255, 0, 206, 203)
         ),
-        home: MyHomePage(
+        home: Home(
           items: List.generate(
             orgs.length,
             (i) => Items(
@@ -2307,29 +2370,263 @@ class MyApp extends StatelessWidget {
               orgs[i]['info'],
               orgs[i]['address'],
               orgs[i]['website'],
-              orgs[i]['email'],
-            ),
+              orgs[i]['email']
+            )),
+          oppItems: List.generate(
+            opps.length,
+            (i) => OppItems(
+              opps[i]['org'],
+              opps[i]['opportunity'],
+              opps[i]['dateStart'],
+              opps[i]['dateEnd'],
+              opps[i]['description'],
+              opps[i]['requierments'],
+              opps[i]['training'],
+              opps[i]['link'],
+              opps[i]['openings'],
+              opps[i]['location'],
+            )),
           ),
         ),
-      ),
-    );
+      );
+  }
+}
+
+
+class Home extends StatefulWidget {
+  @override
+  const Home({super.key, required this.items, required this.oppItems});
+
+  final List<Items> items;
+  final List<OppItems> oppItems;
+
+  State<Home> createState() => _HomeState(items: items, oppItems: oppItems);
+}
+
+class _HomeState extends State<Home> {
+  @override
+  _HomeState({required this.items, required this.oppItems});
+  final List<Items> items;
+  final List<OppItems> oppItems;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.displayMedium!
+        .copyWith(color: theme.colorScheme.secondary, fontSize: 40);
+
+    return Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          backgroundColor: theme.colorScheme.primary,
+          centerTitle: true,
+          title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'weare',
+                  style: style,
+                  textAlign: TextAlign.center,
+                ),
+                Image.asset('assets/logo.png', scale: 6),
+                Text(
+                  'olunteenz',
+                  style: style,
+                  textAlign: TextAlign.center,
+                ),
+              ]),
+        ),
+        body: Center(
+          child: Column(
+            children: [
+              Row(children: <Widget>[
+                ElevatedButton(
+                    onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Org(items: items),
+                          ),
+                        ),
+                    child: Text("Browse organizations")),
+                ElevatedButton(
+                    onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Opp(oppItems: oppItems),
+                          ),
+                        ),
+                    child: Text("Browse oppurtunities"))
+              ]),
+            ],
+          ),
+        ));
+  }
+}
+
+class Opp extends StatefulWidget {
+  @override
+  const Opp({super.key, required this.oppItems});
+
+  final List<OppItems> oppItems;
+
+  State<Opp> createState() => _OppState(oppItems: oppItems);
+}
+
+class _OppState extends State<Opp> {
+  @override
+  _OppState({required this.oppItems});
+  final List<OppItems> oppItems;
+  final List<OppItems> _selectedItems = [];
+
+  bool isSelected(i) {
+    for (var s in _selectedItems) {
+      if (s.org == i.org) return true;
+    }
+    return false;
+  }
+
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.displayMedium!
+        .copyWith(color: theme.colorScheme.secondary, fontSize: 40);
+
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: theme.colorScheme.primary,
+          centerTitle: true,
+          title: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'weare',
+                  style: style,
+                  textAlign: TextAlign.center,
+                ),
+                Image.asset('assets/logo.png', scale: 6),
+                Text(
+                  'olunteenz',
+                  style: style,
+                  textAlign: TextAlign.center,
+                ),
+              ]),
+        ),
+        body: Column(children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                  child: Container(
+                padding: const EdgeInsets.all(8.0),
+                color: theme.colorScheme.primary,
+                child: const TextField(
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.search),
+                    filled: true,
+                    border: OutlineInputBorder(),
+                    hintText: 'Search',
+                  ),
+                ),
+              )),
+              SizedBox(
+                width: 150,
+                child: Container(
+                  padding: const EdgeInsets.all(8.0),
+                  color: theme.colorScheme.primary,
+                  child: const TextField(
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.room),
+                      filled: true,
+                      border: OutlineInputBorder(),
+                      hintText: 'Location',
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: oppItems.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Padding(
+                        padding:
+                            const EdgeInsets.only(bottom: 8, left: 8, right: 8),
+                        child: ListTile(
+                          shape: const RoundedRectangleBorder(
+                              side: BorderSide(color: Colors.black, width: 1),
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(5),
+                                  topRight: Radius.circular(5),
+                                  bottomRight: Radius.circular(5),
+                                  bottomLeft: Radius.circular(5))),
+                          tileColor: theme.colorScheme.background,
+                          selectedTileColor: theme.colorScheme.tertiary,
+                          selectedColor: Colors.black,
+                          trailing: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      OppInfo(oppItems: oppItems[index]),
+                                ),
+                              );
+                              // selectedItem = index;
+                              // Scaffold.of(context).openEndDrawer();
+                              //_openEndDrawer(items[index]);
+                            },
+                            style: TextButton.styleFrom(
+                              /*
+                              backgroundColor:
+                                  const Color.fromARGB(255, 219, 219, 219),
+                                  */
+                              padding: EdgeInsets.zero,
+                            ),
+                            child: const Text('ⓘ',
+                                style: TextStyle(
+                                  fontSize: 24, /* color: Colors.black*/
+                                )),
+                          ),
+                          title: Text(oppItems[index].org),
+                          contentPadding: const EdgeInsets.only(left: 10),
+                          visualDensity:
+                              const VisualDensity(horizontal: 0, vertical: -4),
+                          selected: isSelected(oppItems[index]),
+                          onTap: () {
+                            setState(() {
+                              if (isSelected(oppItems[index])) {
+                                _selectedItems.remove(oppItems[index]);
+                              } else {
+                                _selectedItems.add(oppItems[index]);
+                              }
+                            });
+                          },
+                        ),
+                      );
+                    },
+                  )
+            )
+        ]
+          )
+        );
   }
 }
 
 class MyAppState extends ChangeNotifier {}
 
-class MyHomePage extends StatefulWidget {
+class Org extends StatefulWidget {
   @override
-  const MyHomePage({super.key, required this.items});
+  const Org({super.key, required this.items});
 
   final List<Items> items;
 
-  State<MyHomePage> createState() => _MyHomePageState(items: items);
+  State<Org> createState() => _OrgState(items: items);
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _OrgState extends State<Org> {
   @override
-  _MyHomePageState({required this.items});
+  _OrgState({required this.items});
   final List<Items> _selectedItems = [];
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final List<Items> items;
@@ -2503,7 +2800,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      InfoScreen(item: items[index]),
+                                      OrgInfo(item: items[index]),
                                 ),
                               );
                               // selectedItem = index;
@@ -2563,7 +2860,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      InfoScreen(item: _results[index]),
+                                      OrgInfo(item: _results[index]),
                                 ),
                               );
                             },
@@ -2631,9 +2928,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class InfoScreen extends StatelessWidget {
+class OrgInfo extends StatelessWidget {
   // In the constructor, require a Todo.
-  const InfoScreen({super.key, required this.item});
+  const OrgInfo({super.key, required this.item});
 
   // Declare a field that holds the Todo.
   final Items item;
@@ -2729,6 +3026,131 @@ class InfoScreen extends StatelessWidget {
                         textAlign: TextAlign.left,
                         softWrap: true),
                     Text(item.email, textAlign: TextAlign.left, softWrap: true),
+                  ]),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class OppInfo extends StatelessWidget{
+   const OppInfo({super.key, required this.oppItems});
+
+  // Declare a field that holds the Todo.
+  final OppItems oppItems;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.primary,
+        title: const Text('Oppurtunity Info'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          // scrollDirection: Axis.horizontal,
+          child: Column(
+            children: [
+              Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    const Text('Organization',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    Text(oppItems.org + '\n',
+                        textAlign: TextAlign.left, softWrap: true),
+                    const Text('Opportunity',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left),
+                    // Text(item.info.join(', ')+'\n'),
+                    Text(oppItems.opportunity + '\n',
+                        textAlign: TextAlign.left, softWrap: true),
+                    const Text('Start Date',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    Text(oppItems.dateStart + "\n",
+                        textAlign: TextAlign.left, softWrap: true),
+                    const Text('End Date',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    Text(oppItems.dateEnd + "\n",
+                        textAlign: TextAlign.left, softWrap: true),
+                    const Text('Description',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    Text(oppItems.description + "\n",
+                        textAlign: TextAlign.left, softWrap: true),
+                    const Text('Requierments',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    Text(oppItems.requierments + "\n",
+                        textAlign: TextAlign.left, softWrap: true),
+                    const Text('Training',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    Text(oppItems.training + "\n",
+                        textAlign: TextAlign.left, softWrap: true),
+                    const Text('Website',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+
+                    TextButton(
+                      onPressed: () async {
+                        Uri url = Uri.parse(oppItems.link);
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url); //forceWebView is true now
+                        } else {
+                          showSnackBar('Could not open website', context,
+                              theme.colorScheme.error);
+                        }
+                      },
+                      style: TextButton.styleFrom(
+                        /*
+                              backgroundColor:
+                                  const Color.fromARGB(255, 219, 219, 219),
+                                  */
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          oppItems.link + '\n',
+                          textAlign: TextAlign.left,
+                          overflow: TextOverflow.fade,
+                        ),
+                      ),
+                    ),
+                    const Text('Openings',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    Text(oppItems.openings, textAlign: TextAlign.left, softWrap: true),
+                    const Text('Location',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    Text(oppItems.location, textAlign: TextAlign.left, softWrap: true),
                   ]),
             ],
           ),
@@ -3182,8 +3604,8 @@ class GoogleSignInApi {
     }
 
     if (await _googleSignIn.isSignedIn() && _googleSignIn.currentUser != null) {
-      showSnackBar('Signed in: ${_googleSignIn.currentUser?.displayName}', context,
-          theme.colorScheme.secondary);
+      showSnackBar('Signed in: ${_googleSignIn.currentUser?.displayName}',
+          context, theme.colorScheme.secondary);
       return _googleSignIn.currentUser;
     } else {
       try {
