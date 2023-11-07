@@ -10,7 +10,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mime/mime.dart';
 import 'package:path_provider/path_provider.dart';
-
+import 'package:flutter/foundation.dart';
 /*
 git add <files>
 git commit -m "<comment>"
@@ -2260,6 +2260,7 @@ var orgs = [
   },
 ];
 
+/*
 var opps = [
   {
     'org': 'San Jose Public Library - Willow Glen Branch',
@@ -2277,7 +2278,8 @@ var opps = [
       Create and log hours in BetterImpact Account (can be done with help of a staff member)
       Must commit to volunteering for at least 3 months.''',
     'training': 'Virtual',
-    'link': 'https://app.betterimpact.com/PublicEnterprise/EnterpriseActivity?enterpriseGuid=8370465d-3777-4b73-b24b-3efd11ca6c09&activityGuid=a2ccfcbe-e9f9-447d-b94e-83219e8f0186&searchUrl=https%253a%252f%252fapp.betterimpact.com%252fPublicEnterprise%252fEnterpriseSearch%253fEnterpriseGuid%253d8370465d-3777-4b73-b24b-3efd11ca6c09%2526SearchType%253dSuitabilityClassification%2526SearchId%253d1150',
+    'link':
+        'https://app.betterimpact.com/PublicEnterprise/EnterpriseActivity?enterpriseGuid=8370465d-3777-4b73-b24b-3efd11ca6c09&activityGuid=a2ccfcbe-e9f9-447d-b94e-83219e8f0186&searchUrl=https%253a%252f%252fapp.betterimpact.com%252fPublicEnterprise%252fEnterpriseSearch%253fEnterpriseGuid%253d8370465d-3777-4b73-b24b-3efd11ca6c09%2526SearchType%253dSuitabilityClassification%2526SearchId%253d1150',
     'openings': '',
     'location': 'Virtual',
   },
@@ -2286,10 +2288,12 @@ var opps = [
     'opportunity': 'ZooTeen',
     'dateStart': '',
     'dateEnd': '',
-    'description': 'The ZooTeen Program is for teens who are interested in pursuing a career involving zookeeping, zoo education, veterinary care, conservation biology or other related field. ZooTeens work closely with our education and animal care teams. They conduct meet- and- greets and animal care routines, and they assist camp counselors with summer camp programs. Additional volunteer opportunities are available throughout the school year. The ZooTeen Program is highly competitive with limited availability. Applications are accepted November through February and selected applicants are invited to an interview. Applicants who are not selected are welcome to reapply the following season. Prior volunteer experience with animal handling, public speaking and/or working with children is beneficial but not required.',
+    'description':
+        'The ZooTeen Program is for teens who are interested in pursuing a career involving zookeeping, zoo education, veterinary care, conservation biology or other related field. ZooTeens work closely with our education and animal care teams. They conduct meet- and- greets and animal care routines, and they assist camp counselors with summer camp programs. Additional volunteer opportunities are available throughout the school year. The ZooTeen Program is highly competitive with limited availability. Applications are accepted November through February and selected applicants are invited to an interview. Applicants who are not selected are welcome to reapply the following season. Prior volunteer experience with animal handling, public speaking and/or working with children is beneficial but not required.',
     'requierments': 'Ages 14 to 17',
     'training': 'Virtual',
-    'link': 'https://app.betterimpact.com/PublicEnterprise/EnterpriseGvi?enterpriseGuid=8370465d-3777-4b73-b24b-3efd11ca6c09&gviGuid=6112e4ef-155d-4d79-8125-3c04761bfbec&searchUrl=https%253a%252f%252fapp.betterimpact.com%252fPublicEnterprise%252fEnterpriseSearch%253fEnterpriseGuid%253d8370465d-3777-4b73-b24b-3efd11ca6c09%2526SearchType%253dSuitabilityClassification%2526SearchId%253d2480',
+    'link':
+        'https://app.betterimpact.com/PublicEnterprise/EnterpriseGvi?enterpriseGuid=8370465d-3777-4b73-b24b-3efd11ca6c09&gviGuid=6112e4ef-155d-4d79-8125-3c04761bfbec&searchUrl=https%253a%252f%252fapp.betterimpact.com%252fPublicEnterprise%252fEnterpriseSearch%253fEnterpriseGuid%253d8370465d-3777-4b73-b24b-3efd11ca6c09%2526SearchType%253dSuitabilityClassification%2526SearchId%253d2480',
     'openings': '',
     'location': '748 Story Rd, San Jose, CA 95112',
   },
@@ -2298,14 +2302,17 @@ var opps = [
     'opportunity': 'Teen Book Reviewer',
     'dateStart': '',
     'dateEnd': '',
-    'description': 'Are you looking for a fun way to volunteer from home? San José Public Library is looking for avid book readers interested in writing book reviews. Each book you review counts as one hour of volunteering. You can write up to 10 reviews per quarter for a maximum of 10 hours. ',
+    'description':
+        'Are you looking for a fun way to volunteer from home? San José Public Library is looking for avid book readers interested in writing book reviews. Each book you review counts as one hour of volunteering. You can write up to 10 reviews per quarter for a maximum of 10 hours. ',
     'requierments': 'Age Must be at least 13+',
     'training': 'Virtual',
-    'link': 'https://app.betterimpact.com/PublicEnterprise/EnterpriseActivity?enterpriseGuid=8370465d-3777-4b73-b24b-3efd11ca6c09&activityGuid=cbde7158-41f8-452d-89e6-46ef1a1059c1&searchUrl=https%253a%252f%252fapp.betterimpact.com%252fPublicEnterprise%252fEnterpriseSearch%253fEnterpriseGuid%253d8370465d-3777-4b73-b24b-3efd11ca6c09%2526SearchType%253dSuitabilityClassification%2526SearchId%253d2480',
+    'link':
+        'https://app.betterimpact.com/PublicEnterprise/EnterpriseActivity?enterpriseGuid=8370465d-3777-4b73-b24b-3efd11ca6c09&activityGuid=cbde7158-41f8-452d-89e6-46ef1a1059c1&searchUrl=https%253a%252f%252fapp.betterimpact.com%252fPublicEnterprise%252fEnterpriseSearch%253fEnterpriseGuid%253d8370465d-3777-4b73-b24b-3efd11ca6c09%2526SearchType%253dSuitabilityClassification%2526SearchId%253d2480',
     'openings': '',
     'location': 'Virtual',
   }
 ];
+*/
 
 class Items {
   final name;
@@ -2317,7 +2324,7 @@ class Items {
   const Items(this.name, this.info, this.address, this.website, this.email);
 }
 
-class OppItems{
+class OppItems {
   final org;
   final opportunity;
   final dateStart;
@@ -2329,18 +2336,27 @@ class OppItems{
   final openings;
   final location;
 
-  const OppItems(this.org, this.opportunity, this.dateStart, this.dateEnd, this.description, this.requierments, this.training, this.link, this.openings, this.location);
+  const OppItems(
+      this.org,
+      this.opportunity,
+      this.dateStart,
+      this.dateEnd,
+      this.description,
+      this.requierments,
+      this.training,
+      this.link,
+      this.openings,
+      this.location);
 }
 
 void main() {
   runApp(
-    MyApp(),
+    const MyApp(),
   );
 }
 
 class MyApp extends StatelessWidget {
-   MyApp({super.key});
-  final listLength = (opps.length + orgs.length);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -2364,59 +2380,301 @@ class MyApp extends StatelessWidget {
         ),
         home: Home(
           items: List.generate(
-            orgs.length,
-            (i) => Items(
-              orgs[i]['name'],
-              orgs[i]['info'],
-              orgs[i]['address'],
-              orgs[i]['website'],
-              orgs[i]['email']
-            )),
+              orgs.length,
+              (i) => Items(orgs[i]['name'], orgs[i]['info'], orgs[i]['address'],
+                  orgs[i]['website'], orgs[i]['email'])),
+          /*
           oppItems: List.generate(
-            opps.length,
-            (i) => OppItems(
-              opps[i]['org'],
-              opps[i]['opportunity'],
-              opps[i]['dateStart'],
-              opps[i]['dateEnd'],
-              opps[i]['description'],
-              opps[i]['requierments'],
-              opps[i]['training'],
-              opps[i]['link'],
-              opps[i]['openings'],
-              opps[i]['location'],
-            )),
-          ),
+              opps.length,
+              (i) => OppItems(
+                    opps[i]['org'],
+                    opps[i]['opportunity'],
+                    opps[i]['dateStart'],
+                    opps[i]['dateEnd'],
+                    opps[i]['description'],
+                    opps[i]['requierments'],
+                    opps[i]['training'],
+                    opps[i]['link'],
+                    opps[i]['openings'],
+                    opps[i]['location'],
+                  ))*/
         ),
-      );
+      ),
+    );
   }
 }
 
-
 class Home extends StatefulWidget {
   @override
-  const Home({super.key, required this.items, required this.oppItems});
+  const Home({
+    super.key,
+    required this.items,
+    /* required this.oppItems*/
+  });
 
   final List<Items> items;
-  final List<OppItems> oppItems;
+  //final List<OppItems> oppItems;
 
-  State<Home> createState() => _HomeState(items: items, oppItems: oppItems);
+  @override
+  State<Home> createState() =>
+      _HomeState(items: items /*, oppItems: oppItems*/);
 }
 
 class _HomeState extends State<Home> {
   @override
-  _HomeState({required this.items, required this.oppItems});
+  _HomeState({required this.items /*, required this.oppItems*/});
   final List<Items> items;
-  final List<OppItems> oppItems;
+  DateTime now = DateTime.now();
+  //final List<OppItems> oppItems;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final style = theme.textTheme.displayMedium!
         .copyWith(color: theme.colorScheme.secondary, fontSize: 40);
 
     return Scaffold(
-        key: _scaffoldKey,
+      key: _scaffoldKey,
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.primary,
+        centerTitle: true,
+        title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'weare',
+                style: style,
+                textAlign: TextAlign.center,
+              ),
+              Image.asset('assets/logo.png', scale: 6),
+              Text(
+                'olunteenz',
+                style: style,
+                textAlign: TextAlign.center,
+              ),
+            ]),
+      ),
+      body: Center(
+        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+                onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Org(items: items),
+                      ),
+                    ),
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: const Text("Browse organizations"),
+                )),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton(
+                onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Opp(now: now),
+                      ),
+                    ),
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: const Text("Browse opportunities"),
+                )),
+          )
+        ]),
+      ),
+    );
+  }
+}
+
+class Opp extends StatefulWidget {
+  @override
+  const Opp({super.key , required this.now});
+
+  final DateTime? now;
+
+  @override
+  State<Opp> createState() => _OppState(now: now);
+}
+
+class _OppState extends State<Opp> {
+  @override
+  _OppState({required this.now});
+  DateTime? now;
+  final List _selectedItems = [];
+  String searchText = '';
+  String locText = '';
+  String listAmount = "";
+  List oppItems = [];
+  List _results = [];
+
+  bool isSelected(i) {
+    var ichk = i["org"] + i["opp"] + i["dateStart"] + i["dateEnd"];
+    for (var s in _selectedItems) {
+      var schk = s["org"] + s["opp"] + s["dateStart"] + s["dateEnd"];
+      if (schk == ichk) {
+        print("Selected");
+        return true;
+      }
+    }
+    print("Not selected");
+    return false;
+  }
+
+  void _handletext(String input) {
+    _results.clear();
+    searchText = input;
+    for (var item in oppItems) {
+      var searchIn = item["opp"] +
+          ' ' +
+          item["org"] +
+          ' ' +
+          item["description"].join('\n');
+      searchIn = searchIn.toLowerCase();
+
+      var sd, ed;
+
+      if (item["dateStart"].length == 0) {
+        sd = DateTime.parse('2100-01-01');
+      } else {
+        sd = DateTime.parse(item["dateStart"]);
+      }
+
+      if (item["dateEnd"].length == 0) {
+        ed = DateTime.parse('1900-01-01');
+      } else {
+        ed = DateTime.parse(item["dateEnd"]);
+      }
+
+      if (sd.compareTo(dateRange.start) > 0 &&
+          ed.compareTo(dateRange.end) < 0) {
+        if (searchIn.contains(searchText.toLowerCase())) {
+          if (item["location"]!.toLowerCase().contains(locText.toLowerCase()) ||
+              item["location"]!.toLowerCase() == "virtual") {
+            setState(() {
+              _results.add(item);
+            });
+          }
+        }
+      }
+    }
+    listText();
+  }
+
+  void _handleloc(String input) {
+    _results.clear();
+    locText = input;
+    for (var item in oppItems) {
+      var searchIn = item["opp"] +
+          ' ' +
+          item["org"] +
+          ' ' +
+          item["description"].join("\n");
+      searchIn = searchIn.toLowerCase();
+
+      var sd, ed;
+
+      if (item["dateStart"].length == 0) {
+        sd = DateTime.parse('2100-01-01');
+      } else {
+        sd = DateTime.parse(item["dateStart"]);
+      }
+
+      if (item["dateEnd"].length == 0) {
+        ed = DateTime.parse('1900-01-01');
+      } else {
+        ed = DateTime.parse(item["dateEnd"]);
+      }
+
+      if (sd.compareTo(dateRange.start) > 0 &&
+          ed.compareTo(dateRange.end) < 0) {
+        if (searchIn.contains(searchText.toLowerCase())) {
+          if (item["location"]!.toLowerCase().contains(locText.toLowerCase()) ||
+              item["location"]!.toLowerCase() == "virtual") {
+            setState(() {
+              _results.add(item);
+            });
+          }
+        }
+      }
+    }
+    listText();
+  }
+
+  void _handledate() {
+    _results.clear();
+    for (var item in oppItems) {
+      var searchIn = item["opp"] +
+          ' ' +
+          item["org"] +
+          ' ' +
+          item["description"].join('\n');
+      searchIn = searchIn.toLowerCase();
+
+      var sd, ed;
+
+      if (item["dateStart"].length == 0) {
+        sd = DateTime.parse('2100-01-01');
+      } else {
+        sd = DateTime.parse(item["dateStart"]);
+      }
+
+      if (item["dateEnd"].length == 0) {
+        ed = DateTime.parse('1900-01-01');
+      } else {
+        ed = DateTime.parse(item["dateEnd"]);
+      }
+
+      if (sd.compareTo(dateRange.start) > 0 &&
+          ed.compareTo(dateRange.end) < 0) {
+        print(" Date Matched");
+        if (searchIn.contains(searchText.toLowerCase())) {
+          print(" Text Matched");
+          if (item["location"]!.toLowerCase().contains(locText.toLowerCase()) ||
+              item["location"]!.toLowerCase() == "virtual") {
+            print(" Loc Matched");
+            setState(() {
+              _results.add(item);
+            });
+          }
+        }
+      }
+    }
+    listText();
+  }
+
+  void listText() {
+    if (searchText.isEmpty && locText.isEmpty
+      && DateTime.parse('1900-01-01').compareTo(dateRange.start) == 0
+      && DateTime.parse('2100-01-01').compareTo(dateRange.end) == 0) {
+      setState(() {
+        listAmount = "${oppItems.length} opportunities";
+      });
+    } else {
+      setState(() {
+        listAmount =
+            "Found ${_results.length} out of ${oppItems.length} opportunities";
+      });
+    }
+  }
+
+  DateTimeRange dateRange =
+      DateTimeRange(start: DateTime(1900, 1, 1), end: DateTime(2100, 1, 1));
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.displayMedium!
+        .copyWith(color: theme.colorScheme.secondary, fontSize: 40);
+    final start = dateRange.start;
+    final end = dateRange.end;
+
+    return Scaffold(
         appBar: AppBar(
           backgroundColor: theme.colorScheme.primary,
           centerTitle: true,
@@ -2438,178 +2696,230 @@ class _HomeState extends State<Home> {
               ]),
         ),
         body: Center(
-          child: Column(
-            children: [
-              Row(children: <Widget>[
-                ElevatedButton(
-                    onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Org(items: items),
-                          ),
-                        ),
-                    child: Text("Browse organizations")),
-                ElevatedButton(
-                    onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => Opp(oppItems: oppItems),
-                          ),
-                        ),
-                    child: Text("Browse oppurtunities"))
-              ]),
-            ],
-          ),
-        ));
-  }
-}
-
-class Opp extends StatefulWidget {
-  @override
-  const Opp({super.key, required this.oppItems});
-
-  final List<OppItems> oppItems;
-
-  State<Opp> createState() => _OppState(oppItems: oppItems);
-}
-
-class _OppState extends State<Opp> {
-  @override
-  _OppState({required this.oppItems});
-  final List<OppItems> oppItems;
-  final List<OppItems> _selectedItems = [];
-
-  bool isSelected(i) {
-    for (var s in _selectedItems) {
-      if (s.org == i.org) return true;
-    }
-    return false;
-  }
-
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!
-        .copyWith(color: theme.colorScheme.secondary, fontSize: 40);
-
-    return Scaffold(
-        appBar: AppBar(
-          backgroundColor: theme.colorScheme.primary,
-          centerTitle: true,
-          title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'weare',
-                  style: style,
-                  textAlign: TextAlign.center,
-                ),
-                Image.asset('assets/logo.png', scale: 6),
-                Text(
-                  'olunteenz',
-                  style: style,
-                  textAlign: TextAlign.center,
-                ),
-              ]),
-        ),
-        body: Column(children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                  child: Container(
-                padding: const EdgeInsets.all(8.0),
-                color: theme.colorScheme.primary,
-                child: const TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search),
-                    filled: true,
-                    border: OutlineInputBorder(),
-                    hintText: 'Search',
-                  ),
-                ),
-              )),
-              SizedBox(
-                width: 150,
-                child: Container(
-                  padding: const EdgeInsets.all(8.0),
-                  color: theme.colorScheme.primary,
-                  child: const TextField(
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.room),
-                      filled: true,
-                      border: OutlineInputBorder(),
-                      hintText: 'Location',
-                    ),
-                  ),
-                ),
-              )
-            ],
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: oppItems.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Padding(
-                        padding:
-                            const EdgeInsets.only(bottom: 8, left: 8, right: 8),
-                        child: ListTile(
-                          shape: const RoundedRectangleBorder(
-                              side: BorderSide(color: Colors.black, width: 1),
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(5),
-                                  topRight: Radius.circular(5),
-                                  bottomRight: Radius.circular(5),
-                                  bottomLeft: Radius.circular(5))),
-                          tileColor: theme.colorScheme.background,
-                          selectedTileColor: theme.colorScheme.tertiary,
-                          selectedColor: Colors.black,
-                          trailing: TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      OppInfo(oppItems: oppItems[index]),
+            child: FutureBuilder<Map<String, dynamic>>(
+                future: fetchJsonDemoData(now),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    oppItems = snapshot.data!["opps"];
+                    return Column(children: <Widget>[
+                      Container(
+                        color: theme.colorScheme.primary,
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                                child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TextField(
+                                onChanged: _handletext,
+                                decoration: const InputDecoration(
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.all(2.0),
+                                  prefixIcon: Icon(Icons.search),
+                                  filled: true,
+                                  border: OutlineInputBorder(),
+                                  hintText: 'Search',
                                 ),
-                              );
-                              // selectedItem = index;
-                              // Scaffold.of(context).openEndDrawer();
-                              //_openEndDrawer(items[index]);
-                            },
-                            style: TextButton.styleFrom(
-                              /*
+                              ),
+                            )),
+                            SizedBox(
+                              width: 150,
+                              child: Container(
+                                padding: const EdgeInsets.only(
+                                    top: 8, bottom: 8, left: 2, right: 8),
+                                child: TextField(
+                                  onChanged: _handleloc,
+                                  decoration: const InputDecoration(
+                                    isDense: true,
+                                    contentPadding: EdgeInsets.all(2.0),
+                                    prefixIcon: Icon(Icons.room),
+                                    filled: true,
+                                    border: OutlineInputBorder(),
+                                    hintText: 'Location',
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Container(
+                                padding: EdgeInsets.only(
+                                    top: 0, bottom: 0, left: 0, right: 8),
+                                width: 130,
+                                height: 40,
+                                child: ElevatedButton.icon(
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        padding: EdgeInsets.all(2.0),
+                                        shape: const RoundedRectangleBorder(
+                                            side: BorderSide(
+                                                color: Colors.black, width: 1),
+                                            borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(5),
+                                                topRight: Radius.circular(5),
+                                                bottomRight: Radius.circular(5),
+                                                bottomLeft:
+                                                    Radius.circular(5)))),
+                                    onPressed: pickDateRange,
+                                    icon: const Icon(Icons.date_range,
+                                        color: Colors.black),
+                                    label: Text(
+                                      '${start.year}/${start.month}/${start.day}\n${end.year}/${end.month}/${end.day}',
+                                      style: TextStyle(color: Colors.black),
+                                    ))),
+                          ],
+                        ),
+                      ),
+                      Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            Container(
+                              color: theme.colorScheme.secondary,
+                              child: Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: Text(
+                                    ((searchText.isEmpty && locText.isEmpty
+                                      && DateTime.parse('1900-01-01').compareTo(dateRange.start) == 0
+                                      && DateTime.parse('2100-01-01').compareTo(dateRange.end) == 0)
+                                            ? '${oppItems.length} opportunities'
+                                            : listAmount) +
+                                        (_selectedItems.isNotEmpty
+                                            ? ', ${_selectedItems.length} selected'
+                                            : ''),
+                                    style: const TextStyle(fontSize: 18),
+                                    textAlign: TextAlign.left),
+                              ),
+                            ),
+                          ]),
+                      Expanded(
+                          child: ListView.builder(
+                        itemCount: ((searchText.isEmpty && locText.isEmpty 
+                          && DateTime.parse('1900-01-01').compareTo(dateRange.start) == 0
+                          && DateTime.parse('2100-01-01').compareTo(dateRange.end) == 0) ? oppItems : _results).length,
+                        itemBuilder: (BuildContext context, int index) {
+                          List items = [];
+                          if (searchText.isEmpty && locText.isEmpty 
+                          && DateTime.parse('1900-01-01').compareTo(dateRange.start) == 0
+                          && DateTime.parse('2100-01-01').compareTo(dateRange.end) == 0) {
+                            items = oppItems;
+                          } else {
+                            items =  _results;
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                                bottom: 8, left: 8, right: 8),
+                            child: ListTile(
+                              shape: const RoundedRectangleBorder(
+                                  side:
+                                      BorderSide(color: Colors.black, width: 1),
+                                  borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(5),
+                                      topRight: Radius.circular(5),
+                                      bottomRight: Radius.circular(5),
+                                      bottomLeft: Radius.circular(5))),
+                              tileColor: theme.colorScheme.background,
+                              selectedTileColor: theme.colorScheme.tertiary,
+                              selectedColor: Colors.black,
+                              trailing: TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          OppInfo(oppItems: items[index]),
+                                    ),
+                                  );
+                                  // selectedItem = index;
+                                  // Scaffold.of(context).openEndDrawer();
+                                  //_openEndDrawer(items[index]);
+                                },
+                                style: TextButton.styleFrom(
+                                  /*
                               backgroundColor:
                                   const Color.fromARGB(255, 219, 219, 219),
                                   */
-                              padding: EdgeInsets.zero,
-                            ),
-                            child: const Text('ⓘ',
+                                  padding: EdgeInsets.zero,
+                                ),
+                                child: const Text('ⓘ',
+                                    style: TextStyle(
+                                      fontSize: 24, /* color: Colors.black*/
+                                    )),
+                              ),
+                              title: Text(
+                                items[index]["opp"],
                                 style: TextStyle(
-                                  fontSize: 24, /* color: Colors.black*/
-                                )),
-                          ),
-                          title: Text(oppItems[index].org),
-                          contentPadding: const EdgeInsets.only(left: 10),
-                          visualDensity:
-                              const VisualDensity(horizontal: 0, vertical: -4),
-                          selected: isSelected(oppItems[index]),
-                          onTap: () {
-                            setState(() {
-                              if (isSelected(oppItems[index])) {
-                                _selectedItems.remove(oppItems[index]);
-                              } else {
-                                _selectedItems.add(oppItems[index]);
-                              }
-                            });
-                          },
-                        ),
-                      );
-                    },
-                  )
-            )
-        ]
-          )
-        );
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              subtitle: Text(items[index]["org"]),
+                              contentPadding: const EdgeInsets.only(left: 10),
+                              visualDensity: const VisualDensity(
+                                  horizontal: 0, vertical: -4),
+                              selected: isSelected(items[index]),
+                              onTap: () {
+                                setState(() {
+                                  if (isSelected(items[index])) {
+                                    _selectedItems.removeWhere((i) =>
+                                        (i["opp"] == items[index]["opp"] &&
+                                            i["org"] == items[index]["org"] &&
+                                            i["dateStart"] ==
+                                                items[index]["dateStart"] &&
+                                            i["dateEnd"] ==
+                                                items[index]["dateEnd"]));
+                                  } else {
+                                    _selectedItems.add(items[index]);
+                                  }
+                                });
+                              },
+                            ),
+                          );
+                        },
+                      ))
+                    ]);
+                  } else if (snapshot.hasError) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text('An error occured ' + snapshot.error.toString())
+                      ],
+                    );
+                  }
+                  return const Center(child: CircularProgressIndicator());
+                })));
+  }
+
+  Future pickDateRange() async {
+    DateTimeRange? newDateRange = await showDateRangePicker(
+        context: context,
+        initialDateRange: dateRange,
+        firstDate: DateTime(1900),
+        lastDate: DateTime(2100));
+
+    if (newDateRange == null) return;
+
+    setState(() => dateRange = newDateRange);
+
+    _handledate();
+  }
+}
+
+Future<Map<String, dynamic>> fetchJsonDemoData(DateTime? now) async {
+  try {
+    final response = await http
+        .get(Uri.parse(
+            'https://script.google.com/macros/s/AKfycbzvl-CBWxpM0gvSUbnWH_ixrdA2LHmLXKLB0NsYRoaPD7T0q1Ex2ZgMMndZ3wKfz5HEmg/exec'))
+        .timeout(const Duration(seconds: 50));
+
+    if (response.statusCode == 200) {
+      print(now);
+      now = DateTime.now();
+      print(now);
+      
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load');
+      // Add screen message
+    }
+  } on SocketException catch (e) {
+    throw Exception('Failed to load');
+    // Add screen message
   }
 }
 
@@ -2621,6 +2931,7 @@ class Org extends StatefulWidget {
 
   final List<Items> items;
 
+  @override
   State<Org> createState() => _OrgState(items: items);
 }
 
@@ -2693,6 +3004,7 @@ class _OrgState extends State<Org> {
     return false;
   }
 
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final style = theme.textTheme.displayMedium!
@@ -2909,7 +3221,7 @@ class _OrgState extends State<Org> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              Message_Page(selectedItems: _selectedItems),
+                              MessagePage(selectedItems: _selectedItems),
                         ),
                       );
                     },
@@ -3035,11 +3347,11 @@ class OrgInfo extends StatelessWidget {
   }
 }
 
-class OppInfo extends StatelessWidget{
-   const OppInfo({super.key, required this.oppItems});
+class OppInfo extends StatelessWidget {
+  const OppInfo({super.key, required this.oppItems});
 
   // Declare a field that holds the Todo.
-  final OppItems oppItems;
+  final Map<String, dynamic> oppItems;
 
   @override
   Widget build(BuildContext context) {
@@ -3047,7 +3359,7 @@ class OppInfo extends StatelessWidget{
     return Scaffold(
       appBar: AppBar(
         backgroundColor: theme.colorScheme.primary,
-        title: const Text('Oppurtunity Info'),
+        title: const Text('Opportunity Info'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -3063,59 +3375,16 @@ class OppInfo extends StatelessWidget{
                             fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.left,
                         softWrap: true),
-                    Text(oppItems.org + '\n',
+                    Text(oppItems["org"] + '\n',
                         textAlign: TextAlign.left, softWrap: true),
                     const Text('Opportunity',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.left),
                     // Text(item.info.join(', ')+'\n'),
-                    Text(oppItems.opportunity + '\n',
-                        textAlign: TextAlign.left, softWrap: true),
-                    const Text('Start Date',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.left,
-                        softWrap: true),
-                    Text(oppItems.dateStart + "\n",
-                        textAlign: TextAlign.left, softWrap: true),
-                    const Text('End Date',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.left,
-                        softWrap: true),
-                    Text(oppItems.dateEnd + "\n",
-                        textAlign: TextAlign.left, softWrap: true),
-                    const Text('Description',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.left,
-                        softWrap: true),
-                    Text(oppItems.description + "\n",
-                        textAlign: TextAlign.left, softWrap: true),
-                    const Text('Requierments',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.left,
-                        softWrap: true),
-                    Text(oppItems.requierments + "\n",
-                        textAlign: TextAlign.left, softWrap: true),
-                    const Text('Training',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.left,
-                        softWrap: true),
-                    Text(oppItems.training + "\n",
-                        textAlign: TextAlign.left, softWrap: true),
-                    const Text('Website',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                        textAlign: TextAlign.left,
-                        softWrap: true),
-
                     TextButton(
                       onPressed: () async {
-                        Uri url = Uri.parse(oppItems.link);
+                        Uri url = Uri.parse(oppItems["link"]);
                         if (await canLaunchUrl(url)) {
                           await launchUrl(url); //forceWebView is true now
                         } else {
@@ -3133,24 +3402,61 @@ class OppInfo extends StatelessWidget{
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          oppItems.link + '\n',
+                          oppItems["opp"] + ' 🡵\n',
                           textAlign: TextAlign.left,
                           overflow: TextOverflow.fade,
                         ),
                       ),
                     ),
+                    const Text('Start Date',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    Text(oppItems["dateStart"] + "\n",
+                        textAlign: TextAlign.left, softWrap: true),
+                    const Text('End Date',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    Text(oppItems["dateEnd"] + "\n",
+                        textAlign: TextAlign.left, softWrap: true),
+                    const Text('Requirements',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    Text(oppItems["requirements"].join("\n") + "\n",
+                        textAlign: TextAlign.left, softWrap: true),
+                    const Text('Training',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    Text(oppItems["training"] + "\n",
+                        textAlign: TextAlign.left, softWrap: true),
                     const Text('Openings',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.left,
                         softWrap: true),
-                    Text(oppItems.openings, textAlign: TextAlign.left, softWrap: true),
+                    Text(oppItems["openings"],
+                        textAlign: TextAlign.left, softWrap: true),
                     const Text('Location',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.left,
                         softWrap: true),
-                    Text(oppItems.location, textAlign: TextAlign.left, softWrap: true),
+                    Text(oppItems["location"] + "\n",
+                        textAlign: TextAlign.left, softWrap: true),
+                    const Text('Description',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    Text(oppItems["description"].join("\n") + "\n",
+                        textAlign: TextAlign.left, softWrap: true),
                   ]),
             ],
           ),
@@ -3160,19 +3466,20 @@ class OppInfo extends StatelessWidget{
   }
 }
 
-class Message_Page extends StatefulWidget {
+class MessagePage extends StatefulWidget {
   @override
-  const Message_Page({super.key, required this.selectedItems});
+  const MessagePage({super.key, required this.selectedItems});
 
   final List<Items> selectedItems;
 
-  State<Message_Page> createState() =>
-      _Message_PageState(selectedItems: selectedItems);
+  @override
+  State<MessagePage> createState() =>
+      _MessagePageState(selectedItems: selectedItems);
 }
 
-class _Message_PageState extends State<Message_Page> {
+class _MessagePageState extends State<MessagePage> {
   @override
-  _Message_PageState({required this.selectedItems});
+  _MessagePageState({required this.selectedItems});
 
   final List<Items> selectedItems;
 
@@ -3201,11 +3508,6 @@ class _Message_PageState extends State<Message_Page> {
     if (result != null && result.files.single.path != null) {
       /// Load result and file details
       PlatformFile file = result.files.first;
-      print(file.name);
-      print(file.bytes);
-      print(file.size);
-      print(file.extension);
-      print(file.path);
       File _file = File(result.files.single.path!);
 
       // https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ
@@ -3332,7 +3634,7 @@ class _Message_PageState extends State<Message_Page> {
             ),
             Expanded(
                 child: Padding(
-                    padding: EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
                     child: ElevatedButton(
                       onPressed: () {
                         GoogleSignInApi.signOut();
@@ -3358,16 +3660,16 @@ class _Message_PageState extends State<Message_Page> {
     var content = '''
 Content-Type: multipart/mixed; boundary="foo_bar_baz"
 MIME-Version: 1.0
-From: ${from}
-To: ${to}
-Subject: ${msgSubj}
+From: $from
+To: $to
+Subject: $msgSubj
 
 --foo_bar_baz
 Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
-${msgBody}
+$msgBody
 
 ''';
 
@@ -3381,12 +3683,12 @@ ${msgBody}
         content = content +
             '''
 --foo_bar_baz
-Content-Type: ${mimeType}
+Content-Type: $mimeType
 MIME-Version: 1.0
 Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="${fileName}"
+Content-Disposition: attachment; filename="$fileName"
 
-${fileInBase64}
+$fileInBase64
 
 ''';
         await fileRes.delete();
@@ -3419,12 +3721,12 @@ ${fileInBase64}
 
     if (response.statusCode != 200) {
       setState(() {
-        print('error: ' + response.statusCode.toString());
+        print('error: ${response.statusCode.toString()}');
         print(json.decode(response.body));
         print(data);
       });
     } else {
-      print('ok: ' + response.statusCode.toString());
+      print('ok: ${response.statusCode.toString()}');
     }
   }
 
@@ -3451,7 +3753,7 @@ ${fileInBase64}
     if (i == selectedItems.length) {
       showSnackBar('Sent all emails', context, theme.colorScheme.secondary);
     } else {
-      showSnackBar('Sent ${i} of ${selectedItems.length} emails', context,
+      showSnackBar('Sent $i of ${selectedItems.length} emails', context,
           theme.colorScheme.error);
     }
 
@@ -3549,7 +3851,7 @@ class GoogleSignInApi {
             style: TextStyle(
               fontSize: 15,
             )),
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(5),
                 topRight: Radius.circular(5),
