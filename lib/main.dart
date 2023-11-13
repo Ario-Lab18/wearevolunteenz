@@ -516,16 +516,14 @@ class _OppState extends State<Opp> {
                                             bottomLeft: Radius.circular(5)))),
                                 onPressed: () {
                                   if (_selectedItems.isEmpty) {
-                                    return;
+                                    //return;
                                   }
                                   setState(() {
                                     viewMode = (viewMode + 1) % 3;
                                   });
                                 },
                                 icon: Icon(_filterIcon(),
-                                    color: (_selectedItems.isEmpty
-                                        ? theme.colorScheme.secondary
-                                        : Colors.black))),
+                                    color: Colors.black)),
                           ),
                         ),
                       ],
