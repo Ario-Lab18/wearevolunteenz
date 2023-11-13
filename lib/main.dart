@@ -54,9 +54,10 @@ class MyApp extends StatelessWidget {
   }
 }
 
-void debug (str) {
-  if (!kReleaseMode) { // Is not Release Mode??
-      print(str);
+void debug(str) {
+  if (!kReleaseMode) {
+    // Is not Release Mode??
+    print(str);
   }
 }
 
@@ -73,11 +74,13 @@ Future<String?> getDeviceIdentifier() async {
   } else if (kIsWeb) {
     // The web doesnt have a device UID, so use a combination fingerprint as an example
     WebBrowserInfo webInfo = await deviceInfo.webBrowserInfo;
-    deviceIdentifier = webInfo.vendor! + webInfo.userAgent! + webInfo.hardwareConcurrency.toString();
+    deviceIdentifier = webInfo.vendor! +
+        webInfo.userAgent! +
+        webInfo.hardwareConcurrency.toString();
   } else if (Platform.isLinux) {
     LinuxDeviceInfo linuxInfo = await deviceInfo.linuxInfo;
     deviceIdentifier = linuxInfo.machineId;
-  } else if (Platform.isWindows){
+  } else if (Platform.isWindows) {
     WindowsDeviceInfo winInfo = await deviceInfo.windowsInfo;
     deviceIdentifier = winInfo.deviceId;
   }
@@ -140,10 +143,15 @@ class _OppState extends State<Opp> {
   List oppItems = [];
   final List _results = [];
   Future<Map<String, dynamic>>? _future;
+  DateTimeRange dateRange = DateTimeRange(
+      start: DateTime.now(),
+      end: DateTime.now().add(const Duration(days: 365)));
+  bool dateRangeChanged = false;
 
   @override
   void initState() {
     super.initState();
+
     _future = fetchJsonDemoData(context);
     // return;
     getApplicationDocumentsDirectory().then((dir) {
@@ -157,10 +165,12 @@ class _OppState extends State<Opp> {
     });
   }
 
-  bool isSelected (i, [bool remove = false]) {
-    String itext = i["opp"] + ' ' + i["org"] + ' ' + i["dateStart"] + ' ' + i["dateEnd"];
+  bool updateSelected(i, [bool remove = false]) {
+    String itext =
+        i["opp"] + ' ' + i["org"] + ' ' + i["dateStart"] + ' ' + i["dateEnd"];
     for (var s in _selectedItems) {
-      String stext = s["opp"] + ' ' + s["org"] + ' ' + s["dateStart"] + ' ' + s["dateEnd"];
+      String stext =
+          s["opp"] + ' ' + s["org"] + ' ' + s["dateStart"] + ' ' + s["dateEnd"];
       if (stext == itext) {
         if (remove) {
           _selectedItems.remove(s);
@@ -173,7 +183,25 @@ class _OppState extends State<Opp> {
     return false;
   }
 
-  void saveAppliedFile () async {
+  bool isSelected(i, [bool remove = false]) {
+    String itext =
+        i["opp"] + ' ' + i["org"] + ' ' + i["dateStart"] + ' ' + i["dateEnd"];
+    for (var s in _selectedItems) {
+      String stext =
+          s["opp"] + ' ' + s["org"] + ' ' + s["dateStart"] + ' ' + s["dateEnd"];
+      if (stext == itext) {
+        if (remove) {
+          _selectedItems.remove(s);
+          return false;
+        } else {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  void saveAppliedFile() async {
     Directory directory = await getApplicationDocumentsDirectory();
     String appliedJsonFile = "${directory.path}/applied.json";
     debug("saving $appliedJsonFile");
@@ -181,35 +209,33 @@ class _OppState extends State<Opp> {
     file.writeAsStringSync(json.encode(_selectedItems));
   }
 
-  List filterItems () {
+  List filterItems() {
     List tmpList = [];
-    if (searchText.isEmpty && locText.isEmpty
-      && DateTime.parse('1900-01-01').compareTo(dateRange.start) == 0
-      && DateTime.parse('2100-01-01').compareTo(dateRange.end) == 0) {
-        tmpList = List.from(oppItems);
+    if (searchText.isEmpty && locText.isEmpty && !dateRangeChanged) {
+      tmpList = List.from(oppItems);
     } else {
       tmpList = List.from(_results);
     }
-    if (viewMode == 0){
+    if (viewMode == 0) {
       tmpList = tmpList;
     } else if (viewMode == 1) {
       tmpList = tmpList.where((i) => isSelected(i)).toList();
-    } else  {
+    } else {
       tmpList = tmpList.where((i) => !isSelected(i)).toList();
     }
     return tmpList;
   }
 
-  IconData _filterIcon () {
-    if (viewMode == 0){
+  IconData _filterIcon() {
+    if (viewMode == 0) {
       return Icons.indeterminate_check_box;
     } else if (viewMode == 1) {
       return Icons.check_box;
-    } else  {
+    } else {
       return Icons.check_box_outline_blank;
     }
   }
-  
+
   Future _refresh() async {
     setState(() => oppItems.clear());
     final Map<String, dynamic> resp = await fetchJsonDemoData(context);
@@ -336,9 +362,6 @@ class _OppState extends State<Opp> {
     }
   }
 
-  DateTimeRange dateRange =
-      DateTimeRange(start: DateTime(1900, 1, 1), end: DateTime(2100, 1, 1));
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -396,7 +419,7 @@ class _OppState extends State<Opp> {
                           ),
                         )),
                         SizedBox(
-                          width: 150,
+                          width: 120,
                           child: Container(
                             padding: const EdgeInsets.only(
                                 top: 8, bottom: 8, left: 2, right: 8),
@@ -404,7 +427,7 @@ class _OppState extends State<Opp> {
                               onChanged: _handleloc,
                               decoration: const InputDecoration(
                                 isDense: true,
-                                contentPadding: EdgeInsets.all(2.0),
+                                contentPadding: EdgeInsets.only(left: 0),
                                 prefixIcon: Icon(Icons.room),
                                 filled: true,
                                 border: OutlineInputBorder(),
@@ -416,7 +439,7 @@ class _OppState extends State<Opp> {
                         Container(
                             padding: const EdgeInsets.only(right: 8),
                             width: 130,
-                            height: 40,
+                            height: 42,
                             child: ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
@@ -457,12 +480,7 @@ class _OppState extends State<Opp> {
                             child: Text(
                                 ((searchText.isEmpty &&
                                         locText.isEmpty &&
-                                        DateTime.parse('1900-01-01')
-                                                .compareTo(dateRange.start) ==
-                                            0 &&
-                                        DateTime.parse('2100-01-01')
-                                                .compareTo(dateRange.end) ==
-                                            0)
+                                        !dateRangeChanged)
                                     ? '${oppItems.length} matched'
                                     : '${_results.length} matched'),
                                 style: const TextStyle(fontSize: 18),
@@ -540,7 +558,9 @@ class _OppState extends State<Opp> {
                                     selectedTileColor:
                                         theme.colorScheme.background,
                                     selectedColor: Colors.grey,
-                                    leading: Icon(isSelected(items[index]) ? Icons.check_circle : Icons.radio_button_unchecked),
+                                    leading: Icon(isSelected(items[index])
+                                        ? Icons.check_circle
+                                        : Icons.radio_button_unchecked),
                                     trailing: TextButton(
                                       onPressed: () {
                                         Navigator.push(
@@ -577,33 +597,52 @@ class _OppState extends State<Opp> {
                                         bool result = await showDialog(
                                           context: context,
                                           builder: (context) => AlertDialog(
-                                            content: const Text("Did you apply?"),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5.0)),
+                                            backgroundColor:
+                                                theme.colorScheme.background,
+                                            content:
+                                                const Text("Did you apply?"),
                                             actions: [
                                               TextButton(
-                                                child: const Text("Yes",
-                                                    style: TextStyle()),
-                                                onPressed: () {
-                                                  Navigator.pop(context, true);
-                                              }),
+                                                  child: const Text("Yes",
+                                                      style: TextStyle()),
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                        context, true);
+                                                  }),
                                               TextButton(
-                                                child: const Text("No",
-                                                    style: TextStyle()),
-                                                onPressed: () {
-                                                  Navigator.pop(context, false);
-                                              })
+                                                  child: const Text("No",
+                                                      style: TextStyle()),
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                        context, false);
+                                                  })
                                             ],
                                           ),
                                         );
                                         setState(() {
-                                        if (result) {
-                                          _selectedItems.add(items[index]);
-                                          sendUsageData(context, "applied",
-                                            items[index]["org"] + ' ' + items[index]["opp"] + ' ' + items[index]["dateStart"] + ' ' + items[index]["dateEnd"]);
-                                        } else {
-                                          isSelected(items[index], true);
-
-                                        }});
-                                        saveAppliedFile();                                      } else {
+                                          if (result) {
+                                            if (!isSelected(items[index])) {
+                                              _selectedItems.add(items[index]);
+                                              sendUsageData(
+                                                  context,
+                                                  "applied",
+                                                  items[index]["org"] +
+                                                      ' ' +
+                                                      items[index]["opp"] +
+                                                      ' ' +
+                                                      items[index]["dateStart"] +
+                                                      ' ' +
+                                                      items[index]["dateEnd"]);
+                                            }
+                                          } else {
+                                            isSelected(items[index], true);
+                                          }
+                                        });
+                                        saveAppliedFile();
+                                      } else {
                                         showSnackBar('Could not open website',
                                             context, theme.colorScheme.error);
                                       }
@@ -628,15 +667,45 @@ class _OppState extends State<Opp> {
   }
 
   Future pickDateRange() async {
+    final themeData = Theme.of(context);
     DateTimeRange? newDateRange = await showDateRangePicker(
         context: context,
         initialDateRange: dateRange,
         firstDate: DateTime(1900),
-        lastDate: DateTime(2100));
+        lastDate: DateTime(2100),
+        builder: (context, Widget? child) => Theme(
+              data: themeData.copyWith(
+                dialogTheme: const DialogTheme(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(0.0)),
+                  ),
+                ),
+                textTheme: const TextTheme(
+                  titleSmall: TextStyle(fontSize: 20.0), // calendar "Select"
+                  titleLarge: TextStyle(fontSize: 16.0), // calendar "dates"
+                  labelLarge: TextStyle(fontSize: 20.0), // text field "Select"
+                  headlineLarge: TextStyle(fontSize: 16.0), // textfield "dates"
+                  bodyMedium: TextStyle(color: Colors.black), // calendar actual dates
+                  bodyLarge: TextStyle(color: Colors.black),
+                ),
+                useMaterial3: true,
+                colorScheme: const ColorScheme.light().copyWith(
+                  secondaryContainer: const Color.fromARGB(255, 255, 237, 102),
+                  primary: const Color.fromARGB(255, 0, 206, 203),
+                  surface: Color.fromARGB(255, 253, 253, 188),
+                ),
+              ),
+              child: child!,
+            ));
 
-    if (newDateRange == null) return;
+    if (newDateRange == null) {
+      return;
+    }
 
-    setState(() => dateRange = newDateRange);
+    setState(() {
+      dateRange = newDateRange;
+      dateRangeChanged = true;
+    });
 
     _handledate();
   }
@@ -818,7 +887,7 @@ class _OrgState extends State<Org> {
                           onChanged: _handletext,
                           decoration: const InputDecoration(
                             isDense: true,
-                            contentPadding: EdgeInsets.all(2.0),
+                            contentPadding: EdgeInsets.all(0.0),
                             prefixIcon: Icon(Icons.search),
                             filled: true,
                             border: OutlineInputBorder(),
@@ -872,7 +941,7 @@ class _OrgState extends State<Org> {
                           child: Center(
                             child: ElevatedButton.icon(
                                 label: Text(
-                                  "${_selectedItems.length} selected",
+                                  "${_selectedItems.length} picked",
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: (_selectedItems.isEmpty
@@ -888,13 +957,9 @@ class _OrgState extends State<Org> {
                                     backgroundColor:
                                         theme.colorScheme.secondary,
                                     padding: const EdgeInsets.all(2),
-                                    shape: const RoundedRectangleBorder(
-                                        //side: BorderSide(color: Colors.black, width: 0),
-                                        borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(5),
-                                            topRight: Radius.circular(5),
-                                            bottomRight: Radius.circular(5),
-                                            bottomLeft: Radius.circular(5)))),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(5.0))),
                                 onPressed: () {
                                   if (_selectedItems.isEmpty) return;
                                   Navigator.push(
@@ -1178,11 +1243,13 @@ class OppInfo extends StatelessWidget {
                             fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.left,
                         softWrap: true),
-                    Text(oppItems["dateStart"].isEmpty ? "" :
-                        DateFormat("EEE, MMM-d-yyyy, h:mm a").format(
-                                DateTime.parse(oppItems["dateStart"])
-                                    .toLocal()) +
-                            "\n",
+                    Text(
+                        oppItems["dateStart"].isEmpty
+                            ? ""
+                            : DateFormat("EEE, MMM-d-yyyy, h:mm a").format(
+                                    DateTime.parse(oppItems["dateStart"])
+                                        .toLocal()) +
+                                "\n",
                         textAlign: TextAlign.left,
                         softWrap: true),
                     const Text('End Date',
@@ -1190,10 +1257,13 @@ class OppInfo extends StatelessWidget {
                             fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.left,
                         softWrap: true),
-                    Text(oppItems["dateEnd"].isEmpty ? "" :
-                        DateFormat("EEE, MMM-d-yyyy, h:mm a").format(
-                                DateTime.parse(oppItems["dateEnd"]).toLocal()) +
-                            "\n",
+                    Text(
+                        oppItems["dateEnd"].isEmpty
+                            ? ""
+                            : DateFormat("EEE, MMM-d-yyyy, h:mm a").format(
+                                    DateTime.parse(oppItems["dateEnd"])
+                                        .toLocal()) +
+                                "\n",
                         textAlign: TextAlign.left,
                         softWrap: true),
                     const Text('Requirements',
