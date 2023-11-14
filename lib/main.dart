@@ -419,7 +419,7 @@ class _OppState extends State<Opp> {
                           ),
                         )),
                         SizedBox(
-                          width: 120,
+                          width: 130,
                           child: Container(
                             padding: const EdgeInsets.only(
                                 top: 8, bottom: 8, left: 2, right: 8),
@@ -515,9 +515,6 @@ class _OppState extends State<Opp> {
                                             bottomRight: Radius.circular(5),
                                             bottomLeft: Radius.circular(5)))),
                                 onPressed: () {
-                                  if (_selectedItems.isEmpty) {
-                                    //return;
-                                  }
                                   setState(() {
                                     viewMode = (viewMode + 1) % 3;
                                   });
@@ -1354,7 +1351,7 @@ class _MessagePageState extends State<MessagePage> {
       // https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ
       // https://github.com/miguelpruivo/flutter_file_picker/issues/301
       Directory directory = await getApplicationDocumentsDirectory();
-      String dir = "${directory.path} / ${result.files.first.name}";
+      String dir = "${directory.path}\${result.files.first.name}";
       try {
         // This will try first to just rename the file if they are on the same directory,
         await file.rename(dir);
