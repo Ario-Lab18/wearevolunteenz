@@ -1352,7 +1352,7 @@ class _MessagePageState extends State<MessagePage> {
       // https://github.com/miguelpruivo/flutter_file_picker/issues/301
       Directory directory = await getApplicationDocumentsDirectory();
       print(directory);
-      String dir = "${directory.path}\${result.files.first.name}";
+      String dir = "${directory.path}/${result.files.first.name}";
       print(dir);
       try {
         // This will try first to just rename the file if they are on the same directory,
