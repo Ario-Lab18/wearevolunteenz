@@ -1351,7 +1351,9 @@ class _MessagePageState extends State<MessagePage> {
       // https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ
       // https://github.com/miguelpruivo/flutter_file_picker/issues/301
       Directory directory = await getApplicationDocumentsDirectory();
+      print(directory);
       String dir = "${directory.path}\${result.files.first.name}";
+      print(dir);
       try {
         // This will try first to just rename the file if they are on the same directory,
         await file.rename(dir);
@@ -1362,6 +1364,7 @@ class _MessagePageState extends State<MessagePage> {
       }
       setState(() {
         filePath = dir;
+        print(filePath);
       });
     } else {
       /// User canceled the picker
@@ -1458,9 +1461,9 @@ class _MessagePageState extends State<MessagePage> {
                                   : Colors.black)),
                     ],
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     if (!(msgBody.isEmpty || msgSubj.isEmpty)) {
-                      sendEmail();
+                      await sendEmail();
                       Navigator.pop(context);
                     }
                   },
