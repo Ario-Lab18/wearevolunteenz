@@ -167,10 +167,10 @@ class _OppState extends State<Opp> {
 
   bool updateSelected(i, [bool remove = false]) {
     String itext =
-        i["opp"] + ' ' + i["org"] + ' ' + i["dateStart"] + ' ' + i["dateEnd"];
+        i["opp"] + ' ' + i["org"] + ' ' + i["dateStart"] + ' ' + i["dateEnd"] + ' ' + i["location"];
     for (var s in _selectedItems) {
       String stext =
-          s["opp"] + ' ' + s["org"] + ' ' + s["dateStart"] + ' ' + s["dateEnd"];
+          s["opp"] + ' ' + s["org"] + ' ' + s["dateStart"] + ' ' + s["dateEnd"] + ' ' + s["location"];
       if (stext == itext) {
         if (remove) {
           _selectedItems.remove(s);
@@ -185,10 +185,10 @@ class _OppState extends State<Opp> {
 
   bool isSelected(i, [bool remove = false]) {
     String itext =
-        i["opp"] + ' ' + i["org"] + ' ' + i["dateStart"] + ' ' + i["dateEnd"];
+        i["opp"] + ' ' + i["org"] + ' ' + i["dateStart"] + ' ' + i["dateEnd"] + ' ' + i["location"];
     for (var s in _selectedItems) {
       String stext =
-          s["opp"] + ' ' + s["org"] + ' ' + s["dateStart"] + ' ' + s["dateEnd"];
+          s["opp"] + ' ' + s["org"] + ' ' + s["dateStart"] + ' ' + s["dateEnd"] + ' ' + s["location"];
       if (stext == itext) {
         if (remove) {
           _selectedItems.remove(s);
@@ -630,7 +630,9 @@ class _OppState extends State<Opp> {
                                                       ' ' +
                                                       items[index]["dateStart"] +
                                                       ' ' +
-                                                      items[index]["dateEnd"]);
+                                                      items[index]["dateEnd"] +
+                                                      ' ' +
+                                                      items[index]["location"]);
                                             }
                                           } else {
                                             isSelected(items[index], true);
