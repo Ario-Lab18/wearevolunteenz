@@ -12,6 +12,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 /*
 git add <files>
@@ -26,7 +28,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -166,11 +168,25 @@ class _OppState extends State<Opp> {
   }
 
   bool updateSelected(i, [bool remove = false]) {
-    String itext =
-        i["opp"] + ' ' + i["org"] + ' ' + i["dateStart"] + ' ' + i["dateEnd"] + ' ' + i["location"];
+    String itext = i["opp"] +
+        ' ' +
+        i["org"] +
+        ' ' +
+        i["dateStart"] +
+        ' ' +
+        i["dateEnd"] +
+        ' ' +
+        i["location"];
     for (var s in _selectedItems) {
-      String stext =
-          s["opp"] + ' ' + s["org"] + ' ' + s["dateStart"] + ' ' + s["dateEnd"] + ' ' + s["location"];
+      String stext = s["opp"] +
+          ' ' +
+          s["org"] +
+          ' ' +
+          s["dateStart"] +
+          ' ' +
+          s["dateEnd"] +
+          ' ' +
+          s["location"];
       if (stext == itext) {
         if (remove) {
           _selectedItems.remove(s);
@@ -184,11 +200,25 @@ class _OppState extends State<Opp> {
   }
 
   bool isSelected(i, [bool remove = false]) {
-    String itext =
-        i["opp"] + ' ' + i["org"] + ' ' + i["dateStart"] + ' ' + i["dateEnd"] + ' ' + i["location"];
+    String itext = i["opp"] +
+        ' ' +
+        i["org"] +
+        ' ' +
+        i["dateStart"] +
+        ' ' +
+        i["dateEnd"] +
+        ' ' +
+        i["location"];
     for (var s in _selectedItems) {
-      String stext =
-          s["opp"] + ' ' + s["org"] + ' ' + s["dateStart"] + ' ' + s["dateEnd"] + ' ' + s["location"];
+      String stext = s["opp"] +
+          ' ' +
+          s["org"] +
+          ' ' +
+          s["dateStart"] +
+          ' ' +
+          s["dateEnd"] +
+          ' ' +
+          s["location"];
       if (stext == itext) {
         if (remove) {
           _selectedItems.remove(s);
@@ -519,8 +549,7 @@ class _OppState extends State<Opp> {
                                     viewMode = (viewMode + 1) % 3;
                                   });
                                 },
-                                icon: Icon(_filterIcon(),
-                                    color: Colors.black)),
+                                icon: Icon(_filterIcon(), color: Colors.black)),
                           ),
                         ),
                       ],
@@ -628,7 +657,8 @@ class _OppState extends State<Opp> {
                                                       ' ' +
                                                       items[index]["opp"] +
                                                       ' ' +
-                                                      items[index]["dateStart"] +
+                                                      items[index]
+                                                          ["dateStart"] +
                                                       ' ' +
                                                       items[index]["dateEnd"] +
                                                       ' ' +
@@ -682,7 +712,8 @@ class _OppState extends State<Opp> {
                   titleLarge: TextStyle(fontSize: 16.0), // calendar "dates"
                   labelLarge: TextStyle(fontSize: 20.0), // text field "Select"
                   headlineLarge: TextStyle(fontSize: 16.0), // textfield "dates"
-                  bodyMedium: TextStyle(color: Colors.black), // calendar actual dates
+                  bodyMedium:
+                      TextStyle(color: Colors.black), // calendar actual dates
                   bodyLarge: TextStyle(color: Colors.black),
                 ),
                 useMaterial3: true,
@@ -720,10 +751,10 @@ class Org extends StatefulWidget {
 
 Future<Map<String, dynamic>> fetchJsonDemoData(context) async {
   try {
-    final response = await http
-        .get(Uri.parse(
-            'https://script.google.com/macros/s/AKfycbzvl-CBWxpM0gvSUbnWH_ixrdA2LHmLXKLB0NsYRoaPD7T0q1Ex2ZgMMndZ3wKfz5HEmg/exec'))
-        .timeout(const Duration(seconds: 30));
+    final response = await http.get(Uri.parse(
+        //'https://script.google.com/macros/s/AKfycbzvl-CBWxpM0gvSUbnWH_ixrdA2LHmLXKLB0NsYRoaPD7T0q1Ex2ZgMMndZ3wKfz5HEmg/exec' real
+        'https://script.google.com/macros/s/AKfycbxbrlvefaBsX4zdX8v36M_5uUWzYD6-hv-YAyT5VMOrYVGRoiqlrPhwjkSv2nylsxoqnQ/exec' // copy
+        )).timeout(const Duration(seconds: 30));
 
     if (response.statusCode == 200) {
       return json.decode(response.body);
@@ -1174,15 +1205,32 @@ class OrgInfo extends StatelessWidget {
   }
 }
 
-class OppInfo extends StatelessWidget {
-  const OppInfo({super.key, required this.oppItems});
+class OppInfo extends StatefulWidget {
+  OppInfo({super.key, required this.oppItems});
 
   // Declare a field that holds the Todo.
   final Map<String, dynamic> oppItems;
 
   @override
+  State<OppInfo> createState() => _OppInfoState();
+}
+
+class _OppInfoState extends State<OppInfo> {
+  String? _currentAddress;
+
+  Position? _currentPosition;
+
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    Future<void> _getCurrentPosition() async {
+      await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.high)
+          .then((Position position) {
+        setState(() => _currentPosition = position);
+      }).catchError((e) {
+        debugPrint(e);
+      });
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: theme.colorScheme.primary,
@@ -1202,7 +1250,7 @@ class OppInfo extends StatelessWidget {
                             fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.left,
                         softWrap: true),
-                    Text(oppItems["org"] + '\n',
+                    Text(widget.oppItems["org"] + '\n',
                         textAlign: TextAlign.left, softWrap: true),
                     const Text('Opportunity',
                         style: TextStyle(
@@ -1211,7 +1259,7 @@ class OppInfo extends StatelessWidget {
                     // Text(item.info.join(', ')+'\n'),
                     TextButton(
                       onPressed: () async {
-                        Uri url = Uri.parse(oppItems["link"]);
+                        Uri url = Uri.parse(widget.oppItems["link"]);
                         if (await canLaunchUrl(url)) {
                           await launchUrl(url); //forceWebView is true now
                         } else {
@@ -1229,7 +1277,7 @@ class OppInfo extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          oppItems["opp"] + ' [Apply 🡵]\n',
+                          widget.oppItems["opp"] + ' [Apply 🡵]\n',
                           textAlign: TextAlign.left,
                           overflow: TextOverflow.fade,
                         ),
@@ -1241,10 +1289,10 @@ class OppInfo extends StatelessWidget {
                         textAlign: TextAlign.left,
                         softWrap: true),
                     Text(
-                        oppItems["dateStart"].isEmpty
+                        widget.oppItems["dateStart"].isEmpty
                             ? ""
                             : DateFormat("EEE, MMM-d-yyyy, h:mm a").format(
-                                    DateTime.parse(oppItems["dateStart"])
+                                    DateTime.parse(widget.oppItems["dateStart"])
                                         .toLocal()) +
                                 "\n",
                         textAlign: TextAlign.left,
@@ -1255,10 +1303,10 @@ class OppInfo extends StatelessWidget {
                         textAlign: TextAlign.left,
                         softWrap: true),
                     Text(
-                        oppItems["dateEnd"].isEmpty
+                        widget.oppItems["dateEnd"].isEmpty
                             ? ""
                             : DateFormat("EEE, MMM-d-yyyy, h:mm a").format(
-                                    DateTime.parse(oppItems["dateEnd"])
+                                    DateTime.parse(widget.oppItems["dateEnd"])
                                         .toLocal()) +
                                 "\n",
                         textAlign: TextAlign.left,
@@ -1268,36 +1316,53 @@ class OppInfo extends StatelessWidget {
                             fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.left,
                         softWrap: true),
-                    Text(oppItems["requirements"].join("\n") + "\n",
+                    Text(widget.oppItems["requirements"].join("\n") + "\n",
                         textAlign: TextAlign.left, softWrap: true),
                     const Text('Training',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.left,
                         softWrap: true),
-                    Text(oppItems["training"] + "\n",
+                    Text(widget.oppItems["training"] + "\n",
                         textAlign: TextAlign.left, softWrap: true),
                     const Text('Openings',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.left,
                         softWrap: true),
-                    Text(oppItems["openings"],
+                    Text(widget.oppItems["openings"],
                         textAlign: TextAlign.left, softWrap: true),
                     const Text('Location',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.left,
                         softWrap: true),
-                    Text(oppItems["location"] + "\n",
+                    Text(widget.oppItems["location"] + "\n",
                         textAlign: TextAlign.left, softWrap: true),
                     const Text('Description',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.left,
                         softWrap: true),
-                    Text(oppItems["description"].join("\n") + "\n",
+                    Text(widget.oppItems["description"].join("\n") + "\n",
                         textAlign: TextAlign.left, softWrap: true),
+                    const Text('\nLatlong',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    Text(widget.oppItems["latlong"] + "\n",
+                        textAlign: TextAlign.left, softWrap: true),
+                    const Text('\nPhone Latlong',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.left,
+                        softWrap: true),
+                    TextButton(
+                      child: Text("ChicachicaBoom" + "\n",
+                        textAlign: TextAlign.left, softWrap: true),
+                      onPressed: () {_getCurrentPosition();},
+                      ),
                   ]),
             ],
           ),
