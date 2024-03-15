@@ -46,6 +46,10 @@ flutter:
   assets: 
   - assets/logo.png
   - assets/google_signin_buttons/ios/3x/btn_google_light_normal_ios@3x.png
+  plugin:
+        platforms:
+          ios:
+            pluginClass: AppDelegate
 
 
 flutter_icons:

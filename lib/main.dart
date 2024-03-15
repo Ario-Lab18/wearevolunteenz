@@ -143,6 +143,7 @@ class _OppState extends State<Opp> {
   String searchText = '';
   String locText = '';
   List oppItems = [];
+  Position? _currentPosition;
   final List _results = [];
   Future<Map<String, dynamic>>? _future;
   DateTimeRange dateRange = DateTimeRange(
@@ -264,6 +265,17 @@ class _OppState extends State<Opp> {
     } else {
       return Icons.check_box_outline_blank;
     }
+  }
+
+
+  Future<void> _getCurrentPosition() async {
+    await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high)
+        .then((Position position) {
+      setState(() => _currentPosition = position);
+    }).catchError((e) {
+      debugPrint(e);
+    });
   }
 
   Future _refresh() async {
@@ -614,6 +626,7 @@ class _OppState extends State<Opp> {
                                         horizontal: 0, vertical: -4),
                                     selected: isSelected(items[index]),
                                     onTap: () async {
+                                      _getCurrentPosition();
                                       Uri url = Uri.parse(items[index]["link"]);
                                       if (await canLaunchUrl(url)) {
                                         await launchUrl(
@@ -627,7 +640,7 @@ class _OppState extends State<Opp> {
                                             backgroundColor:
                                                 theme.colorScheme.background,
                                             content:
-                                                const Text("Did you apply?"),
+                                                Text("Did you apply? $_currentPosition"),
                                             actions: [
                                               TextButton(
                                                   child: const Text("Yes",
@@ -1216,21 +1229,14 @@ class OppInfo extends StatefulWidget {
 }
 
 class _OppInfoState extends State<OppInfo> {
-  String? _currentAddress;
 
-  Position? _currentPosition;
+
 
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    Future<void> _getCurrentPosition() async {
-      await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.high)
-          .then((Position position) {
-        setState(() => _currentPosition = position);
-      }).catchError((e) {
-        debugPrint(e);
-      });
-    }
+
+    
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: theme.colorScheme.primary,
@@ -1359,9 +1365,9 @@ class _OppInfoState extends State<OppInfo> {
                         textAlign: TextAlign.left,
                         softWrap: true),
                     TextButton(
-                      child: Text("ChicachicaBoom" + "\n",
+                      child: const Text(" ",
                         textAlign: TextAlign.left, softWrap: true),
-                      onPressed: () {_getCurrentPosition();},
+                      onPressed: () {},
                       ),
                   ]),
             ],
