@@ -21,8 +21,6 @@ dependencies:
   path_provider: ^2.1.1
   intl: ^0.17.0
   device_info_plus: ^9.1.0
-  geolocator: ^8.2.0
-  geocoding: ^2.0.4
   
 
 dev_dependencies:
@@ -46,10 +44,6 @@ flutter:
   assets: 
   - assets/logo.png
   - assets/google_signin_buttons/ios/3x/btn_google_light_normal_ios@3x.png
-  plugin:
-        platforms:
-          ios:
-            pluginClass: AppDelegate
 
 
 flutter_icons:
