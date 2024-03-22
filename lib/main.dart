@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mailer/mailer.dart';
 import 'package:provider/provider.dart';
@@ -148,6 +149,32 @@ class _OppState extends State<Opp> {
       end: DateTime.now().add(const Duration(days: 365)));
   bool dateRangeChanged = false;
 
+  Position? _position;
+
+  void _getCurrentLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+
+    setState(() {
+      _position = position;
+    });
+  }
+
+  Future<Position> _determinePosition() async{
+    LocationPermission permission;
+
+    permission = await Geolocator.checkPermission();
+
+    if(permission == LocationPermission.denied){
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied){
+        return Future.error("Location Denied");
+      }
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -166,11 +193,25 @@ class _OppState extends State<Opp> {
   }
 
   bool updateSelected(i, [bool remove = false]) {
-    String itext =
-        i["opp"] + ' ' + i["org"] + ' ' + i["dateStart"] + ' ' + i["dateEnd"] + ' ' + i["location"];
+    String itext = i["opp"] +
+        ' ' +
+        i["org"] +
+        ' ' +
+        i["dateStart"] +
+        ' ' +
+        i["dateEnd"] +
+        ' ' +
+        i["location"];
     for (var s in _selectedItems) {
-      String stext =
-          s["opp"] + ' ' + s["org"] + ' ' + s["dateStart"] + ' ' + s["dateEnd"] + ' ' + s["location"];
+      String stext = s["opp"] +
+          ' ' +
+          s["org"] +
+          ' ' +
+          s["dateStart"] +
+          ' ' +
+          s["dateEnd"] +
+          ' ' +
+          s["location"];
       if (stext == itext) {
         if (remove) {
           _selectedItems.remove(s);
@@ -184,11 +225,25 @@ class _OppState extends State<Opp> {
   }
 
   bool isSelected(i, [bool remove = false]) {
-    String itext =
-        i["opp"] + ' ' + i["org"] + ' ' + i["dateStart"] + ' ' + i["dateEnd"] + ' ' + i["location"];
+    String itext = i["opp"] +
+        ' ' +
+        i["org"] +
+        ' ' +
+        i["dateStart"] +
+        ' ' +
+        i["dateEnd"] +
+        ' ' +
+        i["location"];
     for (var s in _selectedItems) {
-      String stext =
-          s["opp"] + ' ' + s["org"] + ' ' + s["dateStart"] + ' ' + s["dateEnd"] + ' ' + s["location"];
+      String stext = s["opp"] +
+          ' ' +
+          s["org"] +
+          ' ' +
+          s["dateStart"] +
+          ' ' +
+          s["dateEnd"] +
+          ' ' +
+          s["location"];
       if (stext == itext) {
         if (remove) {
           _selectedItems.remove(s);
@@ -419,7 +474,7 @@ class _OppState extends State<Opp> {
                           ),
                         )),
                         SizedBox(
-                          width: 130,
+                          width: 50,
                           child: Container(
                             padding: const EdgeInsets.only(
                                 top: 8, bottom: 8, left: 2, right: 8),
@@ -433,6 +488,21 @@ class _OppState extends State<Opp> {
                                 border: OutlineInputBorder(),
                                 hintText: 'Location',
                               ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 50,
+                          child: Container(
+                            padding: const EdgeInsets.only(
+                                top: 8, bottom: 8, left: 2, right: 8),
+                            child: FloatingActionButton(
+                              onPressed: () {
+                                _determinePosition();
+                                _getCurrentLocation;
+                                print(_position);
+                              },
+                              child: Text("Press"),
                             ),
                           ),
                         ),
@@ -519,8 +589,7 @@ class _OppState extends State<Opp> {
                                     viewMode = (viewMode + 1) % 3;
                                   });
                                 },
-                                icon: Icon(_filterIcon(),
-                                    color: Colors.black)),
+                                icon: Icon(_filterIcon(), color: Colors.black)),
                           ),
                         ),
                       ],
@@ -628,7 +697,8 @@ class _OppState extends State<Opp> {
                                                       ' ' +
                                                       items[index]["opp"] +
                                                       ' ' +
-                                                      items[index]["dateStart"] +
+                                                      items[index]
+                                                          ["dateStart"] +
                                                       ' ' +
                                                       items[index]["dateEnd"] +
                                                       ' ' +
@@ -682,7 +752,8 @@ class _OppState extends State<Opp> {
                   titleLarge: TextStyle(fontSize: 16.0), // calendar "dates"
                   labelLarge: TextStyle(fontSize: 20.0), // text field "Select"
                   headlineLarge: TextStyle(fontSize: 16.0), // textfield "dates"
-                  bodyMedium: TextStyle(color: Colors.black), // calendar actual dates
+                  bodyMedium:
+                      TextStyle(color: Colors.black), // calendar actual dates
                   bodyLarge: TextStyle(color: Colors.black),
                 ),
                 useMaterial3: true,

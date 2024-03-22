@@ -69,6 +69,8 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>The app allows user to select files (eg: Resume) from their device to be included in their communication with volunteer organizations.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location when open.</string>
 	<false/>
 
 </dict>
