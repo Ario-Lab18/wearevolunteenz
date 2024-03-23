@@ -160,19 +160,27 @@ class _OppState extends State<Opp> {
     });
   }
 
-  Future<Position> _determinePosition() async{
-    LocationPermission permission;
+  void _determinePosition() async {
+    // Check if location services are enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled return an error message
+      return Future.error('Location services are disabled.');
+    }
 
-    permission = await Geolocator.checkPermission();
-
-    if(permission == LocationPermission.denied){
+    // Check location permissions
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied){
-        return Future.error("Location Denied");
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
       }
     }
 
-    return await Geolocator.getCurrentPosition();
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
   }
 
   @override
@@ -499,8 +507,9 @@ class _OppState extends State<Opp> {
                             child: FloatingActionButton(
                               onPressed: () {
                                 _determinePosition();
-                                _getCurrentLocation;
-                                showSnackBar("${_position.toString()}", context, theme.colorScheme.primary);
+                                _getCurrentLocation();
+                                showSnackBar("${_position.toString()}", context,
+                                    theme.colorScheme.primary);
                               },
                               child: Text("Press"),
                             ),
