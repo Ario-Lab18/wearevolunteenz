@@ -152,8 +152,12 @@ class _OppState extends State<Opp> {
   Position? _position;
 
   void _getCurrentLocation() async {
-    Position position = await Geolocator.getCurrentPosition(
+    Position? position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
+
+    if (position == null) {
+      position = await Geolocator.getLastKnownPosition();
+    }
 
     setState(() {
       _position = position;
@@ -505,10 +509,20 @@ class _OppState extends State<Opp> {
                             padding: const EdgeInsets.only(
                                 top: 8, bottom: 8, left: 2, right: 8),
                             child: FloatingActionButton(
-                              onPressed: () {
+                              onPressed: () {showDialog(
+                                    //if set to true allow to close popup by tapping out of the popup
+                                    barrierDismissible: false,
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        const AlertDialog(
+                                      title: Text("HI"),
+                                      content: Text("Are you there?"),
+                                      elevation: 24,
+                                    ),
+                                  );
                                 _determinePosition();
                                 _getCurrentLocation();
-                                showSnackBar("${_position.toString()}", context,
+                                showSnackBar(_position.toString(), context,
                                     theme.colorScheme.primary);
                               },
                               child: Text("Press"),
