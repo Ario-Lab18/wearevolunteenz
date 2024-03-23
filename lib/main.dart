@@ -509,19 +509,31 @@ class _OppState extends State<Opp> {
                             padding: const EdgeInsets.only(
                                 top: 8, bottom: 8, left: 2, right: 8),
                             child: FloatingActionButton(
-                              onPressed: () {showDialog(
+                              onPressed: () {
+                                _determinePosition();
+                                _getCurrentLocation();
+                                showDialog(
                                     //if set to true allow to close popup by tapping out of the popup
                                     barrierDismissible: false,
                                     context: context,
                                     builder: (BuildContext context) =>
-                                        const AlertDialog(
-                                      title: Text("HI"),
-                                      content: Text("Are you there?"),
+                                        AlertDialog(
+                                      title: (_position == null) ? Text(_position.toString()) : Text("No Location"),
+                                      content: TextField(
+                                        decoration: InputDecoration(
+                                          isDense: true,
+                                          contentPadding: EdgeInsets.only(left: 0),
+                                          prefixIcon: Icon(Icons.room),
+                                          filled: true,
+                                          border: OutlineInputBorder(),
+                                          hintText: 'Location',
+                                        ),
+                                      ),
                                       elevation: 24,
                                     ),
                                   );
-                                _determinePosition();
-                                _getCurrentLocation();
+                                
+                                
                                 showSnackBar(_position.toString(), context,
                                     theme.colorScheme.primary);
                               },
