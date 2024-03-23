@@ -500,7 +500,7 @@ class _OppState extends State<Opp> {
                               onPressed: () {
                                 _determinePosition();
                                 _getCurrentLocation;
-                                showSnackBar("$_position", context, theme.colorScheme.primary);
+                                showSnackBar("${_position.toString()}", context, theme.colorScheme.primary);
                               },
                               child: Text("Press"),
                             ),
