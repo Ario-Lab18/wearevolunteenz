@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:geocoding/geocoding.dart' as geocode;
 import 'package:geolocator/geolocator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mailer/mailer.dart';
@@ -14,7 +14,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
-
 
 /*
 git add <files>
@@ -153,7 +152,6 @@ class _OppState extends State<Opp> {
   String location = "";
   String radius = "";
   String locTitle = "";
-  var coords;
 
   Position? _position;
 
@@ -524,10 +522,8 @@ class _OppState extends State<Opp> {
                                       children: [
                                         TextField(
                                           onChanged: (newText) {
-                                            location = newText;
                                             setState(() {
-                                              coords = locationFromAddress(location);
-                                              locTitle = "Loc: $location\nDist: $radius";
+                                              location = newText;
                                             });
                                           },
                                           decoration: const InputDecoration(
@@ -542,10 +538,8 @@ class _OppState extends State<Opp> {
                                         ),
                                         TextField(
                                           onChanged: (newText) {
-                                            radius = newText;
                                             setState(() {
-                                              coords = locationFromAddress(location);
-                                              locTitle = "Loc: $location\nDist: $radius";
+                                              radius = newText;
                                             });
                                           },
                                           decoration: const InputDecoration(
@@ -562,8 +556,19 @@ class _OppState extends State<Opp> {
                                     ),
                                     actions: [
                                       FloatingActionButton(
-                                        onPressed: () {
-                                          showSnackBar(coords.toString(), context, theme.colorScheme.secondary);
+                                        onPressed: () async {
+                                          final coords = await http
+                                              .get(Uri.parse(
+                                                  "https://nominatim.openstreetmap.org/searchformat=json&addressdetails=1&q=" +
+                                                      location))
+                                              .timeout(
+                                                  const Duration(seconds: 30));
+                                          locTitle =
+                                              "Loc: $location\nDist: $radius";
+                                          showSnackBar(
+                                              coords.toString(),
+                                              context,
+                                              theme.colorScheme.secondary);
                                           Navigator.pop(context);
                                         },
                                         child: Text("Close"),
