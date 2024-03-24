@@ -153,6 +153,7 @@ class _OppState extends State<Opp> {
   String location = "";
   String radius = "";
   String locTitle = "";
+  var coords;
 
   Position? _position;
 
@@ -525,8 +526,8 @@ class _OppState extends State<Opp> {
                                           onChanged: (newText) {
                                             location = newText;
                                             setState(() {
-                                              locTitle =
-                                                  "Loc: $location\nDist: $radius";
+                                              coords = locationFromAddress(location);
+                                              locTitle = "Loc: $location\nDist: $radius";
                                             });
                                           },
                                           decoration: const InputDecoration(
@@ -543,8 +544,8 @@ class _OppState extends State<Opp> {
                                           onChanged: (newText) {
                                             radius = newText;
                                             setState(() {
-                                              locTitle =
-                                                  "Loc: $location\nDist: $radius";
+                                              coords = locationFromAddress(location);
+                                              locTitle = "Loc: $location\nDist: $radius";
                                             });
                                           },
                                           decoration: const InputDecoration(
@@ -562,7 +563,7 @@ class _OppState extends State<Opp> {
                                     actions: [
                                       FloatingActionButton(
                                         onPressed: () {
-                                          showSnackBar((locationFromAddress(location)).toString(), context, theme.colorScheme.secondary);
+                                          showSnackBar(coords.toString(), context, theme.colorScheme.secondary);
                                           Navigator.pop(context);
                                         },
                                         child: Text("Close"),
