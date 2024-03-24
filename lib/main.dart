@@ -562,7 +562,7 @@ class _OppState extends State<Opp> {
                                     actions: [
                                       FloatingActionButton(
                                         onPressed: () {
-                                          showSnackBar(locationFromAddress(location).toString(), context, theme.colorScheme.secondary);
+                                          showSnackBar((locationFromAddress(location)).toString(), context, theme.colorScheme.secondary);
                                           Navigator.pop(context);
                                         },
                                         child: Text("Close"),
