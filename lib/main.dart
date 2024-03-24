@@ -519,7 +519,7 @@ class _OppState extends State<Opp> {
                                     builder: (BuildContext context) =>
                                         AlertDialog(
                                       title: (_position == null) ? Text(_position.toString()) : Text("No Location"),
-                                      content: TextField(
+                                      content: const TextField(
                                         decoration: InputDecoration(
                                           isDense: true,
                                           contentPadding: EdgeInsets.only(left: 0),
@@ -529,6 +529,12 @@ class _OppState extends State<Opp> {
                                           hintText: 'Location',
                                         ),
                                       ),
+                                      actions: [
+                                        FloatingActionButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: Text("Close"),
+                                        )
+                                      ],
                                       elevation: 24,
                                     ),
                                   );
