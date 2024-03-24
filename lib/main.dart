@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mailer/mailer.dart';
@@ -13,6 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+
 
 /*
 git add <files>
@@ -150,6 +152,7 @@ class _OppState extends State<Opp> {
   bool dateRangeChanged = false;
   String location = "";
   String radius = "";
+  String locTitle = "";
 
   Position? _position;
 
@@ -488,78 +491,88 @@ class _OppState extends State<Opp> {
                           ),
                         )),
                         SizedBox(
-                          width: 50,
+                          width: 100,
                           child: Container(
                             padding: const EdgeInsets.only(
                                 top: 8, bottom: 8, left: 2, right: 8),
-                            child: FloatingActionButton(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding: const EdgeInsets.all(0.0),
+                                  shape: const RoundedRectangleBorder(
+                                      side: BorderSide(
+                                          color: Colors.black, width: 1),
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(5),
+                                          topRight: Radius.circular(5),
+                                          bottomRight: Radius.circular(5),
+                                          bottomLeft: Radius.circular(5)))),
                               onPressed: () {
-                                _determinePosition();
-                                _getCurrentLocation();
+                                //_determinePosition();
+                                //_getCurrentLocation();
                                 showDialog(
-                                    //if set to true allow to close popup by tapping out of the popup
-                                    barrierDismissible: false,
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        AlertDialog(
-                                      title: (_position == null) ? Text(_position.toString()) : Text("No Location"),
-                                      content: Column(
-                                        children: [
-                                          TextField(
-                                            onChanged: (newText) {location = newText;},
-                                            decoration: const InputDecoration(
-                                              isDense: true,
-                                              contentPadding: EdgeInsets.only(left: 0),
-                                              prefixIcon: Icon(Icons.room),
-                                              filled: true,
-                                              border: OutlineInputBorder(),
-                                              hintText: 'Location',
-                                            ),
+                                  //if set to true allow to close popup by tapping out of the popup
+                                  barrierDismissible: false,
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      AlertDialog(
+                                    title: (_position == null)
+                                        ? Text(_position.toString())
+                                        : Text("No Location"),
+                                    content: Column(
+                                      children: [
+                                        TextField(
+                                          onChanged: (newText) {
+                                            location = newText;
+                                            setState(() {
+                                              locTitle =
+                                                  "Loc: $location\nDist: $radius";
+                                            });
+                                          },
+                                          decoration: const InputDecoration(
+                                            isDense: true,
+                                            contentPadding:
+                                                EdgeInsets.only(left: 0),
+                                            prefixIcon: Icon(Icons.room),
+                                            filled: true,
+                                            border: OutlineInputBorder(),
+                                            hintText: 'Location',
                                           ),
-                                          TextField(
-                                            onChanged: (newText) {radius = newText;},
-                                            decoration: const InputDecoration(
-                                              isDense: true,
-                                              contentPadding: EdgeInsets.only(left: 0),
-                                              prefixIcon: Icon(Icons.room),
-                                              filled: true,
-                                              border: OutlineInputBorder(),
-                                              hintText: 'Distance',
-                                            ),
+                                        ),
+                                        TextField(
+                                          onChanged: (newText) {
+                                            radius = newText;
+                                            setState(() {
+                                              locTitle =
+                                                  "Loc: $location\nDist: $radius";
+                                            });
+                                          },
+                                          decoration: const InputDecoration(
+                                            isDense: true,
+                                            contentPadding:
+                                                EdgeInsets.only(left: 0),
+                                            prefixIcon: Icon(Icons.room),
+                                            filled: true,
+                                            border: OutlineInputBorder(),
+                                            hintText: 'Distance',
                                           ),
-                                        ],
-                                      ),
-                                      actions: [
-                                        FloatingActionButton(
-                                          onPressed: () => Navigator.pop(context),
-                                          child: Text("Close"),
-                                        )
+                                        ),
                                       ],
-                                      elevation: 24,
                                     ),
-                                  );
-                                showSnackBar(_position.toString(), context,
-                                    theme.colorScheme.primary);
+                                    actions: [
+                                      FloatingActionButton(
+                                        onPressed: () {
+                                          showSnackBar(locationFromAddress(location).toString(), context, theme.colorScheme.secondary);
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text("Close"),
+                                      )
+                                    ],
+                                    elevation: 24,
+                                  ),
+                                );
                               },
-                              child: Text("Close"),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 50,
-                          child: Container(
-                            padding: const EdgeInsets.only(
-                                top: 8, bottom: 8, left: 2, right: 8),
-                            child: TextField(
-                              onChanged: _handleloc,
-                              decoration: InputDecoration(
-                                isDense: true,
-                                contentPadding: EdgeInsets.only(left: 0),
-                                prefixIcon: Icon(Icons.room),
-                                filled: true,
-                                border: OutlineInputBorder(),
-                                hintText: 'Loc: $location\nDist: $radius',
-                              ),
+                              child: Text(locTitle),
                             ),
                           ),
                         ),
