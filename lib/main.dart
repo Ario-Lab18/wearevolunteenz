@@ -148,6 +148,8 @@ class _OppState extends State<Opp> {
       start: DateTime.now(),
       end: DateTime.now().add(const Duration(days: 365)));
   bool dateRangeChanged = false;
+  String location = "";
+  String radius = "";
 
   Position? _position;
 
@@ -490,24 +492,6 @@ class _OppState extends State<Opp> {
                           child: Container(
                             padding: const EdgeInsets.only(
                                 top: 8, bottom: 8, left: 2, right: 8),
-                            child: TextField(
-                              onChanged: _handleloc,
-                              decoration: const InputDecoration(
-                                isDense: true,
-                                contentPadding: EdgeInsets.only(left: 0),
-                                prefixIcon: Icon(Icons.room),
-                                filled: true,
-                                border: OutlineInputBorder(),
-                                hintText: 'Location',
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 50,
-                          child: Container(
-                            padding: const EdgeInsets.only(
-                                top: 8, bottom: 8, left: 2, right: 8),
                             child: FloatingActionButton(
                               onPressed: () {
                                 _determinePosition();
@@ -519,15 +503,31 @@ class _OppState extends State<Opp> {
                                     builder: (BuildContext context) =>
                                         AlertDialog(
                                       title: (_position == null) ? Text(_position.toString()) : Text("No Location"),
-                                      content: const TextField(
-                                        decoration: InputDecoration(
-                                          isDense: true,
-                                          contentPadding: EdgeInsets.only(left: 0),
-                                          prefixIcon: Icon(Icons.room),
-                                          filled: true,
-                                          border: OutlineInputBorder(),
-                                          hintText: 'Location',
-                                        ),
+                                      content: Column(
+                                        children: [
+                                          TextField(
+                                            onChanged: (newText) {location = newText;},
+                                            decoration: const InputDecoration(
+                                              isDense: true,
+                                              contentPadding: EdgeInsets.only(left: 0),
+                                              prefixIcon: Icon(Icons.room),
+                                              filled: true,
+                                              border: OutlineInputBorder(),
+                                              hintText: 'Location',
+                                            ),
+                                          ),
+                                          TextField(
+                                            onChanged: (newText) {radius = newText;},
+                                            decoration: const InputDecoration(
+                                              isDense: true,
+                                              contentPadding: EdgeInsets.only(left: 0),
+                                              prefixIcon: Icon(Icons.room),
+                                              filled: true,
+                                              border: OutlineInputBorder(),
+                                              hintText: 'Distance',
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                       actions: [
                                         FloatingActionButton(
@@ -538,12 +538,28 @@ class _OppState extends State<Opp> {
                                       elevation: 24,
                                     ),
                                   );
-                                
-                                
                                 showSnackBar(_position.toString(), context,
                                     theme.colorScheme.primary);
                               },
-                              child: Text("Press"),
+                              child: Text("Close"),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 50,
+                          child: Container(
+                            padding: const EdgeInsets.only(
+                                top: 8, bottom: 8, left: 2, right: 8),
+                            child: TextField(
+                              onChanged: _handleloc,
+                              decoration: InputDecoration(
+                                isDense: true,
+                                contentPadding: EdgeInsets.only(left: 0),
+                                prefixIcon: Icon(Icons.room),
+                                filled: true,
+                                border: OutlineInputBorder(),
+                                hintText: 'Loc: $location\nDist: $radius',
+                              ),
                             ),
                           ),
                         ),
