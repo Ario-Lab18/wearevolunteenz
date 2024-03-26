@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:geocoding/geocoding.dart' as geocode;
 import 'package:geolocator/geolocator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mailer/mailer.dart';
@@ -152,6 +151,7 @@ class _OppState extends State<Opp> {
   String location = "";
   String radius = "";
   String locTitle = "";
+  double lat = 0, lon = 0;
 
   Position? _position;
 
@@ -159,9 +159,7 @@ class _OppState extends State<Opp> {
     Position? position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
-    if (position == null) {
-      position = await Geolocator.getLastKnownPosition();
-    }
+    position = await Geolocator.getLastKnownPosition();
 
     setState(() {
       _position = position;
@@ -557,16 +555,46 @@ class _OppState extends State<Opp> {
                                     actions: [
                                       FloatingActionButton(
                                         onPressed: () async {
-                                          final coords = await http
-                                              .get(Uri.parse(
-                                                  "https://nominatim.openstreetmap.org/searchformat=json&addressdetails=1&q=" +
-                                                      location))
-                                              .timeout(
-                                                  const Duration(seconds: 30));
+                                          try {
+                                            final response = await http
+                                                .get(Uri.parse(
+                                                    "https://nominatim.openstreetmap.org/searchformat=json&addressdetails=1&q=" +
+                                                        location))
+                                                .timeout(const Duration(
+                                                    seconds: 30));
+
+                                            if (response.statusCode == 200) {
+                                              final Map<String, dynamic>
+                                                  respJson =
+                                                  json.decode(response.body);
+                                              setState(() {
+                                                if (respJson.isNotEmpty) {
+                                                  lat = respJson[0]["lat"];
+                                                  lon = respJson[0]["lon"];
+                                                }
+                                              });
+                                            } else {
+                                              showSnackBar(
+                                                "Failed to geocode. Try again later.",
+                                                context,
+                                                const Color.fromARGB(
+                                                    255, 255, 94, 91),
+                                              );
+                                              // Add screen message
+                                            }
+                                          } on SocketException {
+                                            showSnackBar(
+                                              "Failed to geocode. Try again later.",
+                                              context,
+                                              const Color.fromARGB(
+                                                  255, 255, 94, 91),
+                                            );
+                                          }
+
                                           locTitle =
                                               "Loc: $location\nDist: $radius";
                                           showSnackBar(
-                                              coords.toString(),
+                                              "$lat , $lon",
                                               context,
                                               theme.colorScheme.secondary);
                                           Navigator.pop(context);
