@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -140,7 +142,7 @@ class _OppState extends State<Opp> {
   List _selectedItems = []; //Just applied items
   int viewMode = 0; //0 = all, 1 = applied, 2 = not applied
   String searchText = '';
-  String locText = '';
+  //String locText = '';
   List oppItems = [];
   final List _results = [];
   Future<Map<String, dynamic>>? _future;
@@ -154,6 +156,8 @@ class _OppState extends State<Opp> {
   double lat = 0, lon = 0;
 
   Position? _position;
+
+  var txt = TextEditingController();
 
   void _getCurrentLocation() async {
     Position? position = await Geolocator.getCurrentPosition(
@@ -280,7 +284,7 @@ class _OppState extends State<Opp> {
 
   List filterItems() {
     List tmpList = [];
-    if (searchText.isEmpty && locText.isEmpty && !dateRangeChanged) {
+    if (searchText.isEmpty && locTitle.isEmpty && !dateRangeChanged) {
       tmpList = List.from(oppItems);
     } else {
       tmpList = List.from(_results);
@@ -315,7 +319,7 @@ class _OppState extends State<Opp> {
     });
   }
 
-  void _handletext(String input) {
+  void _handletext(String input, double lat, double lon, double radius) {
     _results.clear();
     searchText = input;
     for (var item in oppItems) {
@@ -340,11 +344,19 @@ class _OppState extends State<Opp> {
         ed = DateTime.parse(item["dateEnd"]);
       }
 
+      double dist = 0;
+
+      if (item["lat"].isNotEmpty) {
+        dist = Geolocator.distanceBetween(
+            lat, lon, double.parse(item["lat"]), double.parse(item["lon"]));
+
+        dist = dist / 1609.344;
+      }
+
       if (sd.compareTo(dateRange.start) > 0 &&
           ed.compareTo(dateRange.end) < 0) {
         if (searchIn.contains(searchText.toLowerCase())) {
-          if (item["location"]!.toLowerCase().contains(locText.toLowerCase()) ||
-              item["location"]!.toLowerCase() == "virtual") {
+          if (dist <= radius) {
             setState(() {
               _results.add(item);
             });
@@ -354,9 +366,8 @@ class _OppState extends State<Opp> {
     }
   }
 
-  void _handleloc(String input) {
+  void _handleloc(double lat, double lon, double radius) {
     _results.clear();
-    locText = input;
     for (var item in oppItems) {
       var searchIn = item["opp"] +
           ' ' +
@@ -379,11 +390,19 @@ class _OppState extends State<Opp> {
         ed = DateTime.parse(item["dateEnd"]);
       }
 
+      double dist = 0;
+
+      if (item["lat"].isNotEmpty) {
+        dist = Geolocator.distanceBetween(
+            lat, lon, double.parse(item["lat"]), double.parse(item["lon"]));
+
+        dist = dist / 1609.344;
+      }
+
       if (sd.compareTo(dateRange.start) > 0 &&
           ed.compareTo(dateRange.end) < 0) {
         if (searchIn.contains(searchText.toLowerCase())) {
-          if (item["location"]!.toLowerCase().contains(locText.toLowerCase()) ||
-              item["location"]!.toLowerCase() == "virtual") {
+          if (dist <= radius) {
             setState(() {
               _results.add(item);
             });
@@ -393,7 +412,7 @@ class _OppState extends State<Opp> {
     }
   }
 
-  void _handledate() {
+  void _handledate(double lat, double lon, double radius) {
     _results.clear();
     for (var item in oppItems) {
       var searchIn = item["opp"] +
@@ -417,11 +436,19 @@ class _OppState extends State<Opp> {
         ed = DateTime.parse(item["dateEnd"]);
       }
 
+      double dist = 0;
+
+      if (item["lat"].isNotEmpty) {
+        dist = Geolocator.distanceBetween(
+            lat, lon, double.parse(item["lat"]), double.parse(item["lon"]));
+
+        dist = dist / 1609.344;
+      }
+
       if (sd.compareTo(dateRange.start) > 0 &&
           ed.compareTo(dateRange.end) < 0) {
         if (searchIn.contains(searchText.toLowerCase())) {
-          if (item["location"]!.toLowerCase().contains(locText.toLowerCase()) ||
-              item["location"]!.toLowerCase() == "virtual") {
+          if (dist <= radius) {
             setState(() {
               _results.add(item);
             });
@@ -476,7 +503,10 @@ class _OppState extends State<Opp> {
                             child: Container(
                           padding: const EdgeInsets.all(8.0),
                           child: TextField(
-                            onChanged: _handletext,
+                            onChanged: (newText) {
+                              _handletext(
+                                  newText, lat, lon, double.parse(radius));
+                            },
                             decoration: const InputDecoration(
                               isDense: true,
                               contentPadding: EdgeInsets.all(2.0),
@@ -505,20 +535,21 @@ class _OppState extends State<Opp> {
                                           bottomRight: Radius.circular(5),
                                           bottomLeft: Radius.circular(5)))),
                               onPressed: () {
-                                //_determinePosition();
-                                //_getCurrentLocation();
+                                setState(() {
+                                  locTitle = "Current position";
+                                  txt.text =  "Current position";
+                                });
                                 showDialog(
                                   //if set to true allow to close popup by tapping out of the popup
                                   barrierDismissible: false,
                                   context: context,
                                   builder: (BuildContext context) =>
                                       AlertDialog(
-                                    title: (_position == null)
-                                        ? Text(_position.toString())
-                                        : Text("No Location"),
+                                    title: const Text("Location Filter"),
                                     content: Column(
                                       children: [
                                         TextField(
+                                          controller: txt,
                                           onChanged: (newText) {
                                             setState(() {
                                               location = newText;
@@ -558,19 +589,20 @@ class _OppState extends State<Opp> {
                                           try {
                                             final response = await http
                                                 .get(Uri.parse(
-                                                    "https://nominatim.openstreetmap.org/searchformat=json&addressdetails=1&q=" +
+                                                    "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=" +
                                                         location))
                                                 .timeout(const Duration(
                                                     seconds: 30));
 
                                             if (response.statusCode == 200) {
-                                              final Map<String, dynamic>
-                                                  respJson =
+                                              final List<dynamic> respJson =
                                                   json.decode(response.body);
                                               setState(() {
                                                 if (respJson.isNotEmpty) {
-                                                  lat = respJson[0]["lat"];
-                                                  lon = respJson[0]["lon"];
+                                                  lat = double.parse(
+                                                      respJson[0]["lat"]);
+                                                  lon = double.parse(
+                                                      respJson[0]["lon"]);
                                                 }
                                               });
                                             } else {
@@ -592,21 +624,41 @@ class _OppState extends State<Opp> {
                                           }
 
                                           locTitle =
-                                              "Loc: $location\nDist: $radius";
-                                          showSnackBar(
-                                              "$lat , $lon",
-                                              context,
-                                              theme.colorScheme.secondary);
+                                              "$radius miles of\n$location";
+                                          Navigator.pop(context);
+
+                                          if (txt.text != "Current position") {
+                                            _handleloc(
+                                                lat, lon, double.parse(radius));
+                                          } else {
+                                            _getCurrentLocation();
+                                            _handleloc(
+                                                _position!.latitude, _position!.longitude, double.parse(radius));
+                                          }
+                                        },
+                                        child: Text("Save"),
+                                        backgroundColor: theme.colorScheme.secondary,
+                                      ),
+                                      FloatingActionButton(
+                                        onPressed: () {
                                           Navigator.pop(context);
                                         },
-                                        child: Text("Close"),
+                                        child: Text("Cancel"),
+                                        backgroundColor: theme.colorScheme.secondary,
+                                        
                                       )
                                     ],
                                     elevation: 24,
                                   ),
                                 );
                               },
-                              child: Text(locTitle),
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Text(
+                                  locTitle,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -653,7 +705,7 @@ class _OppState extends State<Opp> {
                           child: Center(
                             child: Text(
                                 ((searchText.isEmpty &&
-                                        locText.isEmpty &&
+                                        locTitle.isEmpty &&
                                         !dateRangeChanged)
                                     ? '${oppItems.length} matched'
                                     : '${_results.length} matched'),
@@ -879,7 +931,7 @@ class _OppState extends State<Opp> {
       dateRangeChanged = true;
     });
 
-    _handledate();
+    _handledate(lat, lon, double.parse(radius));
   }
 }
 
