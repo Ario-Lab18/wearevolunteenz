@@ -631,6 +631,7 @@ class _OppState extends State<Opp> {
                                             _handleloc(
                                                 lat, lon, double.parse(radius));
                                           } else {
+                                            _determinePosition();
                                             _getCurrentLocation();
                                             _handleloc(
                                                 _position!.latitude, _position!.longitude, double.parse(radius));
