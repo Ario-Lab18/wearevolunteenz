@@ -537,7 +537,7 @@ class _OppState extends State<Opp> {
                                           bottomLeft: Radius.circular(5)))),
                               icon: const Icon(Icons.room, color: Colors.black),
                               onPressed: () {
-                                //_determinePosition();
+                                _determinePosition();
                                 setState(() {
                                   txt.text = location;
                                 });
@@ -643,7 +643,7 @@ class _OppState extends State<Opp> {
                                                 );
                                               }
                                             } else {
-                                              //_getCurrentLocation();
+                                              _getCurrentLocation();
                                               setState(() {
                                                 if (_position != null){
                                                   lat = _position!.latitude;
