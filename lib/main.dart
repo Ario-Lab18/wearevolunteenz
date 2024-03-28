@@ -150,7 +150,7 @@ class _OppState extends State<Opp> {
       start: DateTime.now(),
       end: DateTime.now().add(const Duration(days: 365)));
   bool dateRangeChanged = false;
-  String location = "";
+  String location = "Current position";
   String radius = "";
   String locTitle = "";
   double lat = 0, lon = 0;
@@ -537,9 +537,9 @@ class _OppState extends State<Opp> {
                                           bottomLeft: Radius.circular(5)))),
                               icon: const Icon(Icons.room, color: Colors.black),
                               onPressed: () {
-                                _determinePosition();
+                                //_determinePosition();
                                 setState(() {
-                                  txt.text = "Current position";
+                                  txt.text = location;
                                 });
                                 showDialog(
                                   //if set to true allow to close popup by tapping out of the popup
@@ -602,67 +602,66 @@ class _OppState extends State<Opp> {
                                                 theme.colorScheme.secondary,
                                           ),
                                           onPressed: () async {
-                                            try {
-                                              final response = await http
-                                                  .get(Uri.parse(
-                                                      "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=" +
-                                                          location))
-                                                  .timeout(const Duration(
-                                                      seconds: 30));
+                                            if (location !=
+                                                "Current position") {
+                                              try {
+                                                final response = await http
+                                                    .get(Uri.parse(
+                                                        "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=" +
+                                                            location))
+                                                    .timeout(const Duration(
+                                                        seconds: 30));
 
-                                              if (response.statusCode == 200) {
-                                                final List<dynamic> respJson =
-                                                    json.decode(response.body);
-                                                setState(() {
-                                                  if (respJson.isNotEmpty) {
-                                                    lat = double.parse(
-                                                        respJson[0]["lat"]);
-                                                    lon = double.parse(
-                                                        respJson[0]["lon"]);
-                                                  }
-                                                });
-                                              } else {
+                                                if (response.statusCode ==
+                                                    200) {
+                                                  final List<dynamic> respJson =
+                                                      json.decode(
+                                                          response.body);
+                                                  setState(() {
+                                                    if (respJson.isNotEmpty) {
+                                                      lat = double.parse(
+                                                          respJson[0]["lat"]);
+                                                      lon = double.parse(
+                                                          respJson[0]["lon"]);
+                                                    }
+                                                  });
+                                                } else {
+                                                  showSnackBar(
+                                                    "Failed to geocode. Try again later.",
+                                                    context,
+                                                    const Color.fromARGB(
+                                                        255, 255, 94, 91),
+                                                  );
+                                                  // Add screen message
+                                                }
+                                              } on SocketException {
                                                 showSnackBar(
                                                   "Failed to geocode. Try again later.",
                                                   context,
                                                   const Color.fromARGB(
                                                       255, 255, 94, 91),
                                                 );
-                                                // Add screen message
                                               }
-                                            } on SocketException {
-                                              showSnackBar(
-                                                "Failed to geocode. Try again later.",
-                                                context,
-                                                const Color.fromARGB(
-                                                    255, 255, 94, 91),
-                                              );
-                                            }
-                                            if (txt.text !=
-                                                "Current location") {
-                                              locTitle =
-                                                  "$radius miles of\n$location";
                                             } else {
-                                              locTitle =
-                                                  "$radius miles of current location";
+                                              //_getCurrentLocation();
+                                              setState(() {
+                                                if (_position != null){
+                                                  lat = _position!.latitude;
+                                                  lon = _position!.longitude;
+                                                }
+                                              });
                                             }
+                                            locTitle =
+                                                "$radius miles of\n$location";
                                             Navigator.pop(context);
 
-                                            if (txt.text !=
-                                                "Current position") {
-                                              _handleloc(lat, lon,
-                                                  double.parse(radius));
-                                            } else {
-                                              _getCurrentLocation();
-                                              _handleloc(
-                                                  _position!.latitude,
-                                                  _position!.longitude,
-                                                  double.parse(radius));
-                                            }
+                                            _handleloc(
+                                                lat, lon, double.parse(radius));
                                           },
                                           child: Text("Save",
                                               style: TextStyle(
-                                                  color: theme.colorScheme.primary)),
+                                                  color: theme
+                                                      .colorScheme.primary)),
                                         ),
                                       ),
                                       SizedBox(
@@ -677,7 +676,8 @@ class _OppState extends State<Opp> {
                                           },
                                           child: Text("Cancel",
                                               style: TextStyle(
-                                                  color: theme.colorScheme.primary)),
+                                                  color: theme
+                                                      .colorScheme.primary)),
                                         ),
                                       )
                                     ],
