@@ -518,11 +518,12 @@ class _OppState extends State<Opp> {
                           ),
                         )),
                         SizedBox(
-                          width: 100,
+                          height: 58,
+                          width: 130,
                           child: Container(
                             padding: const EdgeInsets.only(
                                 top: 8, bottom: 8, left: 2, right: 8),
-                            child: ElevatedButton(
+                            child: ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
                                   padding: const EdgeInsets.all(0.0),
@@ -534,10 +535,11 @@ class _OppState extends State<Opp> {
                                           topRight: Radius.circular(5),
                                           bottomRight: Radius.circular(5),
                                           bottomLeft: Radius.circular(5)))),
+                              icon: const Icon(Icons.room, color: Colors.black),
                               onPressed: () {
+                                _determinePosition();
                                 setState(() {
-                                  locTitle = "Current position";
-                                  txt.text =  "Current position";
+                                  txt.text = "Current position";
                                 });
                                 showDialog(
                                   //if set to true allow to close popup by tapping out of the popup
@@ -545,6 +547,14 @@ class _OppState extends State<Opp> {
                                   context: context,
                                   builder: (BuildContext context) =>
                                       AlertDialog(
+                                    shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(5),
+                                            topRight: Radius.circular(5),
+                                            bottomRight: Radius.circular(5),
+                                            bottomLeft: Radius.circular(5))),
+                                    backgroundColor:
+                                        theme.colorScheme.background,
                                     title: const Text("Location Filter"),
                                     content: Column(
                                       children: [
@@ -575,91 +585,111 @@ class _OppState extends State<Opp> {
                                             isDense: true,
                                             contentPadding:
                                                 EdgeInsets.only(left: 0),
-                                            prefixIcon: Icon(Icons.room),
+                                            prefixIcon: Icon(Icons.my_location),
                                             filled: true,
                                             border: OutlineInputBorder(),
-                                            hintText: 'Distance',
+                                            hintText: 'Distance in miles',
                                           ),
                                         ),
                                       ],
                                     ),
                                     actions: [
-                                      FloatingActionButton(
-                                        onPressed: () async {
-                                          try {
-                                            final response = await http
-                                                .get(Uri.parse(
-                                                    "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=" +
-                                                        location))
-                                                .timeout(const Duration(
-                                                    seconds: 30));
+                                      SizedBox(
+                                        width: 120,
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                theme.colorScheme.secondary,
+                                          ),
+                                          onPressed: () async {
+                                            try {
+                                              final response = await http
+                                                  .get(Uri.parse(
+                                                      "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=" +
+                                                          location))
+                                                  .timeout(const Duration(
+                                                      seconds: 30));
 
-                                            if (response.statusCode == 200) {
-                                              final List<dynamic> respJson =
-                                                  json.decode(response.body);
-                                              setState(() {
-                                                if (respJson.isNotEmpty) {
-                                                  lat = double.parse(
-                                                      respJson[0]["lat"]);
-                                                  lon = double.parse(
-                                                      respJson[0]["lon"]);
-                                                }
-                                              });
-                                            } else {
+                                              if (response.statusCode == 200) {
+                                                final List<dynamic> respJson =
+                                                    json.decode(response.body);
+                                                setState(() {
+                                                  if (respJson.isNotEmpty) {
+                                                    lat = double.parse(
+                                                        respJson[0]["lat"]);
+                                                    lon = double.parse(
+                                                        respJson[0]["lon"]);
+                                                  }
+                                                });
+                                              } else {
+                                                showSnackBar(
+                                                  "Failed to geocode. Try again later.",
+                                                  context,
+                                                  const Color.fromARGB(
+                                                      255, 255, 94, 91),
+                                                );
+                                                // Add screen message
+                                              }
+                                            } on SocketException {
                                               showSnackBar(
                                                 "Failed to geocode. Try again later.",
                                                 context,
                                                 const Color.fromARGB(
                                                     255, 255, 94, 91),
                                               );
-                                              // Add screen message
                                             }
-                                          } on SocketException {
-                                            showSnackBar(
-                                              "Failed to geocode. Try again later.",
-                                              context,
-                                              const Color.fromARGB(
-                                                  255, 255, 94, 91),
-                                            );
-                                          }
+                                            if (txt.text !=
+                                                "Current location") {
+                                              locTitle =
+                                                  "$radius miles of\n$location";
+                                            } else {
+                                              locTitle =
+                                                  "$radius miles of current location";
+                                            }
+                                            Navigator.pop(context);
 
-                                          locTitle =
-                                              "$radius miles of\n$location";
-                                          Navigator.pop(context);
-
-                                          if (txt.text != "Current position") {
-                                            _handleloc(
-                                                lat, lon, double.parse(radius));
-                                          } else {
-                                            _determinePosition();
-                                            _getCurrentLocation();
-                                            _handleloc(
-                                                _position!.latitude, _position!.longitude, double.parse(radius));
-                                          }
-                                        },
-                                        child: Text("Save"),
-                                        backgroundColor: theme.colorScheme.secondary,
+                                            if (txt.text !=
+                                                "Current position") {
+                                              _handleloc(lat, lon,
+                                                  double.parse(radius));
+                                            } else {
+                                              _getCurrentLocation();
+                                              _handleloc(
+                                                  _position!.latitude,
+                                                  _position!.longitude,
+                                                  double.parse(radius));
+                                            }
+                                          },
+                                          child: Text("Save",
+                                              style: TextStyle(
+                                                  color: theme.colorScheme.primary)),
+                                        ),
                                       ),
-                                      FloatingActionButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text("Cancel"),
-                                        backgroundColor: theme.colorScheme.secondary,
-                                        
+                                      SizedBox(
+                                        width: 120,
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor:
+                                                theme.colorScheme.secondary,
+                                          ),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text("Cancel",
+                                              style: TextStyle(
+                                                  color: theme.colorScheme.primary)),
+                                        ),
                                       )
                                     ],
                                     elevation: 24,
                                   ),
                                 );
                               },
-                              child: Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Text(
-                                  locTitle,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
+                              label: Center(
+                                  child: new Text(locTitle,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          color: Colors.black))),
                             ),
                           ),
                         ),
