@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -38,6 +36,13 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'wearevolunteenz',
         theme: ThemeData(
+          sliderTheme: const SliderThemeData(
+            showValueIndicator: ShowValueIndicator.never,
+          ),
+          checkboxTheme: CheckboxThemeData(
+            checkColor: MaterialStateProperty.all(Colors.white),
+            fillColor: MaterialStateProperty.all(Colors.blue),
+          ),
           useMaterial3: true,
           colorScheme: const ColorScheme.light().copyWith(
             primary: const Color.fromARGB(255, 0, 206, 203),
@@ -54,13 +59,6 @@ class MyApp extends StatelessWidget {
         home: const Home(),
       ),
     );
-  }
-}
-
-void debug(str) {
-  if (!kReleaseMode) {
-    // Is not Release Mode??
-    print(str);
   }
 }
 
@@ -128,36 +126,26 @@ class _HomeState extends State<Home> {
   }
 }
 
-class Opp extends StatefulWidget {
-  @override
-  const Opp({super.key});
+class FilterPage extends StatefulWidget {
+  Map<String, dynamic> permFilter;
+
+  FilterPage({super.key, required this.permFilter});
 
   @override
-  State<Opp> createState() => _OppState();
+  // ignore: no_logic_in_create_state
+  State<FilterPage> createState() => _FilterPageState(permFilter: permFilter);
 }
 
-class _OppState extends State<Opp> {
-  @override
-  _OppState();
-  List _selectedItems = []; //Just applied items
-  int viewMode = 0; //0 = all, 1 = applied, 2 = not applied
-  String searchText = '';
-  //String locText = '';
-  List oppItems = [];
-  final List _results = [];
-  Future<Map<String, dynamic>>? _future;
-  DateTimeRange dateRange = DateTimeRange(
-      start: DateTime.now(),
-      end: DateTime.now().add(const Duration(days: 365)));
-  bool dateRangeChanged = false;
-  String location = "Current position";
-  String radius = "";
-  String locTitle = "";
-  double lat = 0, lon = 0;
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  Position? _position;
+class _FilterPageState extends State<FilterPage> {
+  Position? uposition;
 
-  var txt = TextEditingController();
+  Map<String, dynamic> permFilter;
+
+  _FilterPageState({
+    required this.permFilter,
+  });
 
   void _getCurrentLocation() async {
     Position? position = await Geolocator.getCurrentPosition(
@@ -166,7 +154,7 @@ class _OppState extends State<Opp> {
     position = await Geolocator.getLastKnownPosition();
 
     setState(() {
-      _position = position;
+      uposition = position;
     });
   }
 
@@ -193,6 +181,280 @@ class _OppState extends State<Opp> {
     }
   }
 
+  Future pickDateRange() async {
+    final themeData = Theme.of(context);
+    DateTimeRange? newDateRange = await showDateRangePicker(
+        context: context,
+        initialDateRange: tempFilter["dateRange"],
+        firstDate: DateTime(1900),
+        lastDate: DateTime(2100),
+        builder: (context, Widget? child) => Theme(
+              data: ThemeData.light().copyWith(
+                dialogTheme: const DialogTheme(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(0.0)),
+                  ),
+                ),
+                textTheme: const TextTheme(
+                  titleSmall: TextStyle(fontSize: 20.0), // calendar "Select"
+                  titleLarge: TextStyle(fontSize: 16.0), // calendar "dates"
+                  labelLarge: TextStyle(fontSize: 20.0), // text field "Select"
+                  headlineLarge: TextStyle(fontSize: 16.0), // textfield "dates"
+                  bodyMedium:
+                      TextStyle(color: Colors.black), // calendar actual dates
+                  bodyLarge: TextStyle(color: Colors.black),
+                ),
+                //useMaterial3: true,
+                colorScheme: const ColorScheme.light(
+                  background: Color.fromARGB(255, 255, 0, 0),
+                  secondaryContainer: const Color.fromARGB(255, 255, 237, 102),
+                  surface: const Color.fromARGB(255, 253, 253, 188),
+                  primary: const Color.fromARGB(255, 0, 206, 203),
+                ),
+              ),
+              child: child!,
+            ));
+
+    if (newDateRange == null) {
+      return;
+    }
+
+    setState(() {
+      tempFilter["dateRange"] = newDateRange;
+      tempFilter["dateRangeChanged"] = true;
+    });
+  }
+
+  Map<String, dynamic> tempFilter = {};
+
+  @override
+  void initState() {
+    tempFilter = Map.from(permFilter);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.displayMedium!
+        .copyWith(color: theme.colorScheme.secondary, fontSize: 40);
+    final start = tempFilter["dateRange"].start;
+    final end = tempFilter["dateRange"]!.end;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.primary,
+        title: const Text('Filter'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(25.0),
+        child: Column(
+          children: [
+            TextFormField(
+              initialValue: tempFilter["searchText"],
+              onChanged: (newText) {
+                tempFilter["searchText"] = newText;
+              },
+              decoration: const InputDecoration(
+                isDense: true,
+                contentPadding: EdgeInsets.only(left: 0),
+                prefixIcon: Icon(Icons.search),
+                filled: true,
+                border: OutlineInputBorder(),
+                hintText: 'Search',
+              ),
+            ),
+            SizedBox(
+              height: 35,
+            ),
+            TextFormField(
+              initialValue: tempFilter["location"],
+              onChanged: (newText) {
+                setState(() {
+                  tempFilter["location"] = newText;
+                });
+              },
+              decoration: const InputDecoration(
+                isDense: true,
+                contentPadding: EdgeInsets.only(left: 0),
+                prefixIcon: Icon(Icons.room),
+                filled: true,
+                border: OutlineInputBorder(),
+                hintText: 'Location',
+              ),
+            ),
+            Row(
+              children: [
+                Icon(Icons.my_location),
+                SizedBox(
+                  width: 120,
+                  child: Text(
+                      "   Within ${tempFilter["radius"].round().toString()} miles"),
+                ),
+                Expanded(
+                  child: Slider(
+                    min: 1,
+                    max: 200,
+                    divisions: 199,
+                    activeColor: theme.colorScheme.primary,
+                    inactiveColor: HSLColor.fromColor(theme.colorScheme.primary)
+                        .withLightness(0.9)
+                        .toColor(),
+                    value: tempFilter["radius"],
+                    onChanged: (value) {
+                      setState(() {
+                        tempFilter["radius"] = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 35),
+            Container(
+                //padding: const EdgeInsets.only(right: 8),
+                width: double.infinity,
+                height: 38,
+                child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.all(10.0),
+                        shape: const RoundedRectangleBorder(
+                            side: BorderSide(color: Colors.black, width: 1),
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(5),
+                                topRight: Radius.circular(5),
+                                bottomRight: Radius.circular(5),
+                                bottomLeft: Radius.circular(5)))),
+                    onPressed: pickDateRange,
+                    icon: const Icon(Icons.date_range, color: Colors.black),
+                    label: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        DateFormat('MMM d, yyyy').format(start) +
+                            " to " +
+                            DateFormat('MMM d, yyyy').format(end),
+                        //'${start.year}/${start.month}/${start.day} to ${end.year}/${end.month}/${end.day}',
+                        style: const TextStyle(color: Colors.black),
+                        textAlign: TextAlign.left,
+                      ),
+                    ))),
+            const SizedBox(height: 35),
+            Row(
+              children: [
+                Checkbox(
+                    onChanged: (state) {
+                      setState(() {
+                        tempFilter["signUp"] = state;
+                      });
+                    },
+                    value: tempFilter["signUp"]),
+                Text("Instant Sign-up Oppurtunities Only"),
+              ],
+            ),
+            Expanded(
+                child: SizedBox(
+              width: 5,
+            )),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.secondary,
+                ),
+                onPressed: () async {
+                  //Convert location into lat and lon
+                  if (tempFilter["location"] != permFilter["location"]) {
+                    if (tempFilter["location"] != "Current position" &&
+                        tempFilter["location"] != '') {
+                      try {
+                        final response = await http
+                            .get(Uri.parse(
+                                "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${tempFilter["location"]}"))
+                            .timeout(const Duration(seconds: 30));
+
+                        if (response.statusCode == 200) {
+                          final List<dynamic> respJson =
+                              json.decode(response.body);
+                          setState(() {
+                            if (respJson.isNotEmpty) {
+                              tempFilter["lat"] =
+                                  double.parse(respJson[0]["lat"]);
+                              tempFilter["lon"] =
+                                  double.parse(respJson[0]["lon"]);
+                            }
+                          });
+                        } else {
+                          showSnackBar(
+                            "Failed to geocode. Try again later.",
+                            context,
+                            const Color.fromARGB(255, 255, 94, 91),
+                          );
+                          // Add screen message
+                        }
+                      } on SocketException {
+                        showSnackBar(
+                          "Failed to geocode. Try again later.",
+                          context,
+                          const Color.fromARGB(255, 255, 94, 91),
+                        );
+                      }
+                    } else if (tempFilter["location"] != '') {
+                      //_getCurrentLocation();
+                      setState(() {
+                        if (uposition != null) {
+                          tempFilter["lat"] = uposition!.latitude;
+                          tempFilter["lon"] = uposition!.longitude;
+                        }
+                      });
+                    }
+                  }
+
+                  //Make user input permanant
+                  permFilter = Map.from(tempFilter);
+
+                  Navigator.pop(context, permFilter);
+                },
+                child: Text("Save",
+                    style: TextStyle(color: theme.colorScheme.primary)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class Opp extends StatefulWidget {
+  @override
+  const Opp({super.key});
+
+  @override
+  State<Opp> createState() => _OppState();
+}
+
+class _OppState extends State<Opp> {
+  @override
+  _OppState();
+  List _selectedItems = []; //Just applied items
+  int viewMode = 0; //0 = all, 1 = applied, 2 = not applied
+  List oppItems = [];
+  List _results = [];
+  Future<Map<String, dynamic>>? _future;
+
+  Map<String, dynamic> permFilter = {
+    "searchText": '',
+    "dateRange": DateTimeRange(
+        start: DateTime.now(),
+        end: DateTime.now().add(const Duration(days: 365))),
+    "dateRangeChanged": false,
+    "location": 'Current Location',
+    "radius": 100.0,
+    "lat": 0.0,
+    "lon": 0.0,
+    "signUp": false,
+  };
+
   @override
   void initState() {
     super.initState();
@@ -201,7 +463,6 @@ class _OppState extends State<Opp> {
     // return;
     getApplicationDocumentsDirectory().then((dir) {
       String appliedJsonFile = "${dir.path}/applied.json";
-      debug(appliedJsonFile);
       final File file = File(appliedJsonFile);
       if (file.existsSync()) {
         String contents = file.readAsStringSync();
@@ -277,18 +538,21 @@ class _OppState extends State<Opp> {
   void saveAppliedFile() async {
     Directory directory = await getApplicationDocumentsDirectory();
     String appliedJsonFile = "${directory.path}/applied.json";
-    debug("saving $appliedJsonFile");
     final File file = File(appliedJsonFile);
     file.writeAsStringSync(json.encode(_selectedItems));
   }
 
   List filterItems() {
     List tmpList = [];
+    tmpList = List.from(_results);
+    print(_results.length.toString() + " " + oppItems.length.toString());
+    /*
     if (searchText.isEmpty && locTitle.isEmpty && !dateRangeChanged) {
       tmpList = List.from(oppItems);
     } else {
       tmpList = List.from(_results);
     }
+    */
     if (viewMode == 0) {
       tmpList = tmpList;
     } else if (viewMode == 1) {
@@ -312,6 +576,7 @@ class _OppState extends State<Opp> {
   Future _refresh() async {
     setState(() => oppItems.clear());
     final Map<String, dynamic> resp = await fetchJsonDemoData(context);
+    print(resp["opps"].length);
     setState(() {
       if (resp.isNotEmpty) {
         oppItems = resp["opps"];
@@ -319,9 +584,9 @@ class _OppState extends State<Opp> {
     });
   }
 
-  void _handletext(String input, double lat, double lon, double radius) {
+  void _handlefilter(Map<String, dynamic> permFilter) {
     _results.clear();
-    searchText = input;
+    var searchText = permFilter["searchText"];
     for (var item in oppItems) {
       var searchIn = item["opp"] +
           ' ' +
@@ -347,111 +612,30 @@ class _OppState extends State<Opp> {
       double dist = 0;
 
       if (item["lat"].isNotEmpty) {
-        dist = Geolocator.distanceBetween(
-            lat, lon, double.parse(item["lat"]), double.parse(item["lon"]));
+        dist = Geolocator.distanceBetween(permFilter['lat'], permFilter['lon'],
+            double.parse(item["lat"]), double.parse(item["lon"]));
 
         dist = dist / 1609.344;
       }
 
-      if (sd.compareTo(dateRange.start) > 0 &&
-          ed.compareTo(dateRange.end) < 0) {
+      if (sd.compareTo(permFilter["dateRange"].start) > 0 &&
+          ed.compareTo(permFilter["dateRange"].end) < 0) {
         if (searchIn.contains(searchText.toLowerCase())) {
-          if (dist <= radius) {
-            setState(() {
-              _results.add(item);
-            });
-          }
-        }
-      }
-    }
-  }
-
-  void _handleloc(double lat, double lon, double radius) {
-    _results.clear();
-    for (var item in oppItems) {
-      var searchIn = item["opp"] +
-          ' ' +
-          item["org"] +
-          ' ' +
-          item["description"].join("\n");
-      searchIn = searchIn.toLowerCase();
-
-      DateTime sd, ed;
-
-      if (item["dateStart"].length == 0) {
-        sd = DateTime.parse('2100-01-01');
-      } else {
-        sd = DateTime.parse(item["dateStart"]);
-      }
-
-      if (item["dateEnd"].length == 0) {
-        ed = DateTime.parse('1900-01-01');
-      } else {
-        ed = DateTime.parse(item["dateEnd"]);
-      }
-
-      double dist = 0;
-
-      if (item["lat"].isNotEmpty) {
-        dist = Geolocator.distanceBetween(
-            lat, lon, double.parse(item["lat"]), double.parse(item["lon"]));
-
-        dist = dist / 1609.344;
-      }
-
-      if (sd.compareTo(dateRange.start) > 0 &&
-          ed.compareTo(dateRange.end) < 0) {
-        if (searchIn.contains(searchText.toLowerCase())) {
-          if (dist <= radius) {
-            setState(() {
-              _results.add(item);
-            });
-          }
-        }
-      }
-    }
-  }
-
-  void _handledate(double lat, double lon, double radius) {
-    _results.clear();
-    for (var item in oppItems) {
-      var searchIn = item["opp"] +
-          ' ' +
-          item["org"] +
-          ' ' +
-          item["description"].join('\n');
-      searchIn = searchIn.toLowerCase();
-
-      DateTime sd, ed;
-
-      if (item["dateStart"].length == 0) {
-        sd = DateTime.parse('2100-01-01');
-      } else {
-        sd = DateTime.parse(item["dateStart"]);
-      }
-
-      if (item["dateEnd"].length == 0) {
-        ed = DateTime.parse('1900-01-01');
-      } else {
-        ed = DateTime.parse(item["dateEnd"]);
-      }
-
-      double dist = 0;
-
-      if (item["lat"].isNotEmpty) {
-        dist = Geolocator.distanceBetween(
-            lat, lon, double.parse(item["lat"]), double.parse(item["lon"]));
-
-        dist = dist / 1609.344;
-      }
-
-      if (sd.compareTo(dateRange.start) > 0 &&
-          ed.compareTo(dateRange.end) < 0) {
-        if (searchIn.contains(searchText.toLowerCase())) {
-          if (dist <= radius) {
-            setState(() {
-              _results.add(item);
-            });
+          if (dist <= permFilter["radius"]) {
+            if (permFilter["signUp"]) {
+              if (item["type"] == 'Sign-up') {
+                setState(() {
+                  _results.add(item);
+                });
+              }
+            } else {
+              setState(() {
+                _results.add(item);
+              });
+            }
+          } else {
+            print(
+                "${item["org"]} - ${item["opp"]} - ${permFilter["radius"]} - ${dist}\n");
           }
         }
       }
@@ -463,8 +647,6 @@ class _OppState extends State<Opp> {
     final theme = Theme.of(context);
     final style = theme.textTheme.displayMedium!
         .copyWith(color: theme.colorScheme.secondary, fontSize: 40);
-    final start = dateRange.start;
-    final end = dateRange.end;
 
     return Scaffold(
         appBar: AppBar(
@@ -493,232 +675,10 @@ class _OppState extends State<Opp> {
               if (snapshot.hasData) {
                 if (snapshot.data!.isNotEmpty && oppItems.isEmpty) {
                   oppItems = List.from(snapshot.data!["opps"]);
+                  print(oppItems.length);
+                  _results = List.from(oppItems);
                 }
                 return Column(children: <Widget>[
-                  Container(
-                    color: theme.colorScheme.primary,
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                            child: Container(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextField(
-                            onChanged: (newText) {
-                              _handletext(
-                                  newText, lat, lon, double.parse(radius));
-                            },
-                            decoration: const InputDecoration(
-                              isDense: true,
-                              contentPadding: EdgeInsets.all(2.0),
-                              prefixIcon: Icon(Icons.search),
-                              filled: true,
-                              border: OutlineInputBorder(),
-                              hintText: 'Search',
-                            ),
-                          ),
-                        )),
-                        SizedBox(
-                          height: 58,
-                          width: 130,
-                          child: Container(
-                            padding: const EdgeInsets.only(
-                                top: 8, bottom: 8, left: 2, right: 8),
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  padding: const EdgeInsets.all(0.0),
-                                  shape: const RoundedRectangleBorder(
-                                      side: BorderSide(
-                                          color: Colors.black, width: 1),
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(5),
-                                          topRight: Radius.circular(5),
-                                          bottomRight: Radius.circular(5),
-                                          bottomLeft: Radius.circular(5)))),
-                              icon: const Icon(Icons.room, color: Colors.black),
-                              onPressed: () {
-                                _determinePosition();
-                                setState(() {
-                                  txt.text = location;
-                                });
-                                showDialog(
-                                  //if set to true allow to close popup by tapping out of the popup
-                                  barrierDismissible: false,
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      AlertDialog(
-                                    shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(5),
-                                            topRight: Radius.circular(5),
-                                            bottomRight: Radius.circular(5),
-                                            bottomLeft: Radius.circular(5))),
-                                    backgroundColor:
-                                        theme.colorScheme.background,
-                                    title: const Text("Location Filter"),
-                                    content: Column(
-                                      children: [
-                                        TextField(
-                                          controller: txt,
-                                          onChanged: (newText) {
-                                            setState(() {
-                                              location = newText;
-                                            });
-                                          },
-                                          decoration: const InputDecoration(
-                                            isDense: true,
-                                            contentPadding:
-                                                EdgeInsets.only(left: 0),
-                                            prefixIcon: Icon(Icons.room),
-                                            filled: true,
-                                            border: OutlineInputBorder(),
-                                            hintText: 'Location',
-                                          ),
-                                        ),
-                                        TextField(
-                                          onChanged: (newText) {
-                                            setState(() {
-                                              radius = newText;
-                                            });
-                                          },
-                                          decoration: const InputDecoration(
-                                            isDense: true,
-                                            contentPadding:
-                                                EdgeInsets.only(left: 0),
-                                            prefixIcon: Icon(Icons.my_location),
-                                            filled: true,
-                                            border: OutlineInputBorder(),
-                                            hintText: 'Distance in miles',
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    actions: [
-                                      SizedBox(
-                                        width: 120,
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                theme.colorScheme.secondary,
-                                          ),
-                                          onPressed: () async {
-                                            if (location !=
-                                                "Current position") {
-                                              try {
-                                                final response = await http
-                                                    .get(Uri.parse(
-                                                        "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=" +
-                                                            location))
-                                                    .timeout(const Duration(
-                                                        seconds: 30));
-
-                                                if (response.statusCode ==
-                                                    200) {
-                                                  final List<dynamic> respJson =
-                                                      json.decode(
-                                                          response.body);
-                                                  setState(() {
-                                                    if (respJson.isNotEmpty) {
-                                                      lat = double.parse(
-                                                          respJson[0]["lat"]);
-                                                      lon = double.parse(
-                                                          respJson[0]["lon"]);
-                                                    }
-                                                  });
-                                                } else {
-                                                  showSnackBar(
-                                                    "Failed to geocode. Try again later.",
-                                                    context,
-                                                    const Color.fromARGB(
-                                                        255, 255, 94, 91),
-                                                  );
-                                                  // Add screen message
-                                                }
-                                              } on SocketException {
-                                                showSnackBar(
-                                                  "Failed to geocode. Try again later.",
-                                                  context,
-                                                  const Color.fromARGB(
-                                                      255, 255, 94, 91),
-                                                );
-                                              }
-                                            } else {
-                                              _getCurrentLocation();
-                                              setState(() {
-                                                if (_position != null){
-                                                  lat = _position!.latitude;
-                                                  lon = _position!.longitude;
-                                                }
-                                              });
-                                            }
-                                            locTitle =
-                                                "$radius miles of\n$location";
-                                            Navigator.pop(context);
-
-                                            _handleloc(
-                                                lat, lon, double.parse(radius));
-                                          },
-                                          child: Text("Save",
-                                              style: TextStyle(
-                                                  color: theme
-                                                      .colorScheme.primary)),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 120,
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor:
-                                                theme.colorScheme.secondary,
-                                          ),
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: Text("Cancel",
-                                              style: TextStyle(
-                                                  color: theme
-                                                      .colorScheme.primary)),
-                                        ),
-                                      )
-                                    ],
-                                    elevation: 24,
-                                  ),
-                                );
-                              },
-                              label: Center(
-                                  child: new Text(locTitle,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                          color: Colors.black))),
-                            ),
-                          ),
-                        ),
-                        Container(
-                            padding: const EdgeInsets.only(right: 8),
-                            width: 130,
-                            height: 42,
-                            child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white,
-                                    padding: const EdgeInsets.all(0.0),
-                                    shape: const RoundedRectangleBorder(
-                                        side: BorderSide(
-                                            color: Colors.black, width: 1),
-                                        borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(5),
-                                            topRight: Radius.circular(5),
-                                            bottomRight: Radius.circular(5),
-                                            bottomLeft: Radius.circular(5)))),
-                                onPressed: pickDateRange,
-                                icon: const Icon(Icons.date_range,
-                                    color: Colors.black),
-                                label: Text(
-                                  '${start.year}/${start.month}/${start.day}\n${end.year}/${end.month}/${end.day}',
-                                  style: const TextStyle(color: Colors.black),
-                                ))),
-                      ],
-                    ),
-                  ),
                   Container(
                     height: 40,
                     color: theme.colorScheme.secondary,
@@ -726,22 +686,38 @@ class _OppState extends State<Opp> {
                       children: [
                         Expanded(
                           child: Center(
-                            child: Text("${oppItems.length} total",
-                                style: const TextStyle(fontSize: 18),
-                                textAlign: TextAlign.center),
-                          ),
-                          //),
-                        ),
-                        Expanded(
-                          child: Center(
-                            child: Text(
-                                ((searchText.isEmpty &&
-                                        locTitle.isEmpty &&
-                                        !dateRangeChanged)
-                                    ? '${oppItems.length} matched'
-                                    : '${_results.length} matched'),
-                                style: const TextStyle(fontSize: 18),
-                                textAlign: TextAlign.center),
+                            child: ElevatedButton.icon(
+                              label: Text(
+                                  '${_results.length} out of ${oppItems.length}',
+                                  /*
+                                  ((searchText.isEmpty &&
+                                          locTitle.isEmpty &&
+                                          !dateRangeChanged)
+                                      ? '${oppItems.length} out of ${oppItems.length} matched'
+                                      : '${_results.length} out of ${oppItems.length} matched'),
+                                */
+                                  style: const TextStyle(fontSize: 18),
+                                  textAlign: TextAlign.center),
+                              onPressed: () async {
+                                if (_selectedItems.isEmpty) return;
+
+                                var test = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        FilterPage(permFilter: permFilter),
+                                  ),
+                                );
+
+                                if (test != null) {
+                                  permFilter = test as Map<String, dynamic>;
+                                }
+
+                                print(permFilter);
+                                _handlefilter(permFilter);
+                              },
+                              icon: const Icon(Icons.filter_alt),
+                            ),
                           ),
                         ),
                         Expanded(
@@ -828,12 +804,20 @@ class _OppState extends State<Opp> {
                                       child: const Text('ⓘ',
                                           style: TextStyle(fontSize: 24)),
                                     ),
-                                    title: Text(
-                                      items[index]["opp"],
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
+                                    title:
+                                        (items[index]["location"] == "Virtual")
+                                            ? Text(
+                                                "${items[index]["opp"]}  ᯤ",
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              )
+                                            : Text(
+                                                "${items[index]["opp"]}",
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                     subtitle: Text(items[index]["org"]),
                                     contentPadding:
                                         const EdgeInsets.only(left: 10),
@@ -918,51 +902,6 @@ class _OppState extends State<Opp> {
               }
               return const Center(child: CircularProgressIndicator());
             }));
-  }
-
-  Future pickDateRange() async {
-    final themeData = Theme.of(context);
-    DateTimeRange? newDateRange = await showDateRangePicker(
-        context: context,
-        initialDateRange: dateRange,
-        firstDate: DateTime(1900),
-        lastDate: DateTime(2100),
-        builder: (context, Widget? child) => Theme(
-              data: themeData.copyWith(
-                dialogTheme: const DialogTheme(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(0.0)),
-                  ),
-                ),
-                textTheme: const TextTheme(
-                  titleSmall: TextStyle(fontSize: 20.0), // calendar "Select"
-                  titleLarge: TextStyle(fontSize: 16.0), // calendar "dates"
-                  labelLarge: TextStyle(fontSize: 20.0), // text field "Select"
-                  headlineLarge: TextStyle(fontSize: 16.0), // textfield "dates"
-                  bodyMedium:
-                      TextStyle(color: Colors.black), // calendar actual dates
-                  bodyLarge: TextStyle(color: Colors.black),
-                ),
-                useMaterial3: true,
-                colorScheme: const ColorScheme.light().copyWith(
-                  secondaryContainer: const Color.fromARGB(255, 255, 237, 102),
-                  primary: const Color.fromARGB(255, 0, 206, 203),
-                  surface: Color.fromARGB(255, 253, 253, 188),
-                ),
-              ),
-              child: child!,
-            ));
-
-    if (newDateRange == null) {
-      return;
-    }
-
-    setState(() {
-      dateRange = newDateRange;
-      dateRangeChanged = true;
-    });
-
-    _handledate(lat, lon, double.parse(radius));
   }
 }
 
@@ -1611,9 +1550,7 @@ class _MessagePageState extends State<MessagePage> {
       // https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ
       // https://github.com/miguelpruivo/flutter_file_picker/issues/301
       Directory directory = await getApplicationDocumentsDirectory();
-      print(directory);
       String dir = "${directory.path}/${result.files.first.name}";
-      print(dir);
       try {
         // This will try first to just rename the file if they are on the same directory,
         await file.rename(dir);
@@ -1624,7 +1561,6 @@ class _MessagePageState extends State<MessagePage> {
       }
       setState(() {
         filePath = dir;
-        print(filePath);
       });
     } else {
       /// User canceled the picker
