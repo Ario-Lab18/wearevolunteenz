@@ -379,7 +379,6 @@ class _OppState extends State<Opp> {
                                   style: const TextStyle(fontSize: 18),
                                   textAlign: TextAlign.center),
                               onPressed: () async {
-                                if (_selectedItems.isEmpty) return;
                                 var test = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -1199,7 +1198,7 @@ class _FilterPageState extends State<FilterPage> {
   _FilterPageState({
     required this.permFilter,
   });
-  
+
   Position? uposition;
 
   Map<String, dynamic> permFilter;
@@ -1289,11 +1288,9 @@ class _FilterPageState extends State<FilterPage> {
     tempFilter = Map.from(permFilter);
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!
-        .copyWith(color: theme.colorScheme.secondary, fontSize: 40);
     final start = tempFilter["dateRange"].start;
     final end = tempFilter["dateRange"]!.end;
 
