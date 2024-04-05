@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
           ),
           checkboxTheme: CheckboxThemeData(
             checkColor: MaterialStateProperty.all(Colors.white),
-            fillColor: MaterialStateProperty.all(Colors.blue),
+            fillColor: MaterialStateProperty.all(Color.fromARGB(255, 255, 255, 234)),
           ),
           useMaterial3: true,
           colorScheme: const ColorScheme.light().copyWith(
@@ -126,6 +126,315 @@ class _HomeState extends State<Home> {
   }
 }
 
+class FilterPage extends StatefulWidget {
+  @override
+  FilterPage({super.key, required this.permFilter});
+
+  Map<String, dynamic> permFilter;
+
+  @override
+  // ignore: no_logic_in_create_state
+  State<FilterPage> createState() => _FilterPageState(permFilter: permFilter);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class _FilterPageState extends State<FilterPage> {
+  @override
+  _FilterPageState({
+    required this.permFilter,
+  });
+
+  Position? uposition;
+
+  Map<String, dynamic> permFilter;
+
+  void _getCurrentLocation() async {
+    Position? position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+
+    position = await Geolocator.getLastKnownPosition();
+
+    setState(() {
+      uposition = position;
+    });
+  }
+
+  void _determinePosition() async {
+    // Check if location services are enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled return an error message
+      return Future.error('Location services are disabled.');
+    }
+
+    // Check location permissions
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+  }
+
+  Future pickDateRange() async {
+    final themeData = Theme.of(context);
+    DateTimeRange? newDateRange = await showDateRangePicker(
+        context: context,
+        initialDateRange: tempFilter["dateRange"],
+        firstDate: DateTime(1900),
+        lastDate: DateTime(2100),
+        builder: (context, Widget? child) => Theme(
+              data: ThemeData.light().copyWith(
+                dialogTheme: const DialogTheme(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(0.0)),
+                  ),
+                ),
+                textTheme: const TextTheme(
+                  titleSmall: TextStyle(fontSize: 20.0), // calendar "Select"
+                  titleLarge: TextStyle(fontSize: 16.0), // calendar "dates"
+                  labelLarge: TextStyle(fontSize: 20.0), // text field "Select"
+                  headlineLarge: TextStyle(fontSize: 16.0), // textfield "dates"
+                  bodyMedium:
+                      TextStyle(color: Colors.black), // calendar actual dates
+                  bodyLarge: TextStyle(color: Colors.black),
+                ),
+                //useMaterial3: true,
+                colorScheme: const ColorScheme.light(
+                  background: Color.fromARGB(255, 255, 0, 0),
+                  secondaryContainer: Color.fromARGB(255, 255, 237, 102),
+                  surface: Color.fromARGB(255, 253, 253, 188),
+                  primary: Color.fromARGB(255, 0, 206, 203),
+                ),
+              ),
+              child: child!,
+            ));
+
+    if (newDateRange == null) {
+      return;
+    }
+
+    setState(() {
+      tempFilter["dateRange"] = newDateRange;
+      tempFilter["dateRangeChanged"] = true;
+    });
+  }
+
+  Map<String, dynamic> tempFilter = {};
+
+  @override
+  void initState() {
+    tempFilter = Map.from(permFilter);
+  }
+
+ @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final start = tempFilter["dateRange"].start;
+    final end = tempFilter["dateRange"]!.end;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.primary,
+        title: const Text('Filter'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(25.0),
+        child: Column(
+          children: [
+            TextFormField(
+              initialValue: tempFilter["searchText"],
+              onChanged: (newText) {
+                tempFilter["searchText"] = newText;
+              },
+              decoration: const InputDecoration(
+                isDense: true,
+                contentPadding: EdgeInsets.only(left: 0),
+                prefixIcon: Icon(Icons.search),
+                filled: true,
+                border: OutlineInputBorder(),
+                hintText: 'Search',
+              ),
+            ),
+            const SizedBox(
+              height: 35,
+            ),
+            TextFormField(
+              initialValue: tempFilter["location"],
+              onChanged: (newText) {
+                setState(() {
+                  tempFilter["location"] = newText;
+                });
+              },
+              decoration: const InputDecoration(
+                isDense: true,
+                contentPadding: EdgeInsets.only(left: 0),
+                prefixIcon: Icon(Icons.room),
+                filled: true,
+                border: OutlineInputBorder(),
+                hintText: 'Location',
+              ),
+            ),
+            Row(
+              children: [
+                const Icon(Icons.my_location),
+                SizedBox(
+                  width: 120,
+                  child: Text(
+                      "   Within ${tempFilter["radius"].round().toString()} miles"),
+                ),
+                Expanded(
+                  child: Slider(
+                    min: 1,
+                    max: 200,
+                    divisions: 199,
+                    activeColor: theme.colorScheme.primary,
+                    inactiveColor: HSLColor.fromColor(theme.colorScheme.primary)
+                        .withLightness(0.9)
+                        .toColor(),
+                    value: tempFilter["radius"],
+                    onChanged: (value) {
+                      setState(() {
+                        tempFilter["radius"] = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 35),
+            SizedBox(
+                //padding: const EdgeInsets.only(right: 8),
+                width: double.infinity,
+                height: 38,
+                child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.all(10.0),
+                        shape: const RoundedRectangleBorder(
+                            side: BorderSide(color: Colors.black, width: 1),
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(5),
+                                topRight: Radius.circular(5),
+                                bottomRight: Radius.circular(5),
+                                bottomLeft: Radius.circular(5)))),
+                    onPressed: pickDateRange,
+                    icon: const Icon(Icons.date_range, color: Colors.black),
+                    label: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        " ${DateFormat('MMM d, yyyy').format(start)} 12AM to ${DateFormat('MMM d, yyyy').format(end)} 12AM",
+                        //'${start.year}/${start.month}/${start.day} to ${end.year}/${end.month}/${end.day}',
+                        style: const TextStyle(color: Colors.black),
+                        textAlign: TextAlign.left,
+                      ),
+                    ))),
+            const SizedBox(height: 35),
+            Row(
+              children: [
+                Checkbox(
+                    onChanged: (state) {
+                      setState(() {
+                        tempFilter["signUp"] = state;
+                      });
+                    },
+                    value: tempFilter["signUp"]),
+                const Text("Instant Sign-up Oppurtunities"),
+              ],
+            ),
+            Row(
+              children: [
+                Checkbox(
+                    onChanged: (state) {
+                      setState(() {
+                        tempFilter["virtual"] = state;
+                      });
+                    },
+                    value: tempFilter["virtual"]),
+                const Text("Virtual"),
+              ],
+            ),
+            const Expanded(
+                child: SizedBox(
+              width: 5,
+            )),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.secondary,
+                ),
+                onPressed: () async {
+                  //Convert location into lat and lon
+                  if (tempFilter["location"] != permFilter["location"]) {
+                    if (tempFilter["location"] != "Current position" &&
+                        tempFilter["location"] != '') {
+                      try {
+                        final response = await http
+                            .get(Uri.parse(
+                                "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${tempFilter["location"]}"))
+                            .timeout(const Duration(seconds: 30));
+
+                        if (response.statusCode == 200) {
+                          final List<dynamic> respJson =
+                              json.decode(response.body);
+                          setState(() {
+                            if (respJson.isNotEmpty) {
+                              tempFilter["lat"] =
+                                  double.parse(respJson[0]["lat"]);
+                              tempFilter["lon"] =
+                                  double.parse(respJson[0]["lon"]);
+                            }
+                          });
+                        } else {
+                          // ignore: use_build_context_synchronously
+                          showSnackBar(
+                            "Failed to geocode. Try again later.",
+                            context,
+                            const Color.fromARGB(255, 255, 94, 91),
+                          );
+                          // Add screen message
+                        }
+                      } on SocketException {
+                        showSnackBar(
+                          "Failed to geocode. Try again later.",
+                          context,
+                          const Color.fromARGB(255, 255, 94, 91),
+                        );
+                      }
+                    } else if (tempFilter["location"] != '') {
+                      _getCurrentLocation();
+                      setState(() {
+                        if (uposition != null) {
+                          tempFilter["lat"] = uposition!.latitude;
+                          tempFilter["lon"] = uposition!.longitude;
+                        }
+                      });
+                    }
+                  }
+
+                  //Make user input permanant
+                  permFilter = Map.from(tempFilter);
+                  // ignore: use_build_context_synchronously
+                  Navigator.pop(context, permFilter);
+                },
+                child: Text("Save",
+                    style: TextStyle(color: theme.colorScheme.primary)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 
 class Opp extends StatefulWidget {
@@ -158,6 +467,29 @@ class _OppState extends State<Opp> {
     "signUp": false,
     "virtual": false,
   };
+
+  void _determinePosition() async {
+    // Check if location services are enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled return an error message
+      return Future.error('Location services are disabled.');
+    }
+
+    // Check location permissions
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+  }
 
   @override
   void initState() {
@@ -379,6 +711,7 @@ class _OppState extends State<Opp> {
                                   style: const TextStyle(fontSize: 18),
                                   textAlign: TextAlign.center),
                               onPressed: () async {
+                                _determinePosition();
                                 var test = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -1174,316 +1507,6 @@ class OppInfo extends StatelessWidget {
                   ]),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class FilterPage extends StatefulWidget {
-  @override
-  FilterPage({super.key, required this.permFilter});
-
-  Map<String, dynamic> permFilter;
-
-  @override
-  // ignore: no_logic_in_create_state
-  State<FilterPage> createState() => _FilterPageState(permFilter: permFilter);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class _FilterPageState extends State<FilterPage> {
-  @override
-  _FilterPageState({
-    required this.permFilter,
-  });
-
-  Position? uposition;
-
-  Map<String, dynamic> permFilter;
-
-  void _getCurrentLocation() async {
-    Position? position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-
-    position = await Geolocator.getLastKnownPosition();
-
-    setState(() {
-      uposition = position;
-    });
-  }
-
-  void _determinePosition() async {
-    // Check if location services are enabled
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled return an error message
-      return Future.error('Location services are disabled.');
-    }
-
-    // Check location permissions
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-  }
-
-  Future pickDateRange() async {
-    final themeData = Theme.of(context);
-    DateTimeRange? newDateRange = await showDateRangePicker(
-        context: context,
-        initialDateRange: tempFilter["dateRange"],
-        firstDate: DateTime(1900),
-        lastDate: DateTime(2100),
-        builder: (context, Widget? child) => Theme(
-              data: ThemeData.light().copyWith(
-                dialogTheme: const DialogTheme(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(0.0)),
-                  ),
-                ),
-                textTheme: const TextTheme(
-                  titleSmall: TextStyle(fontSize: 20.0), // calendar "Select"
-                  titleLarge: TextStyle(fontSize: 16.0), // calendar "dates"
-                  labelLarge: TextStyle(fontSize: 20.0), // text field "Select"
-                  headlineLarge: TextStyle(fontSize: 16.0), // textfield "dates"
-                  bodyMedium:
-                      TextStyle(color: Colors.black), // calendar actual dates
-                  bodyLarge: TextStyle(color: Colors.black),
-                ),
-                //useMaterial3: true,
-                colorScheme: const ColorScheme.light(
-                  background: Color.fromARGB(255, 255, 0, 0),
-                  secondaryContainer: Color.fromARGB(255, 255, 237, 102),
-                  surface: Color.fromARGB(255, 253, 253, 188),
-                  primary: Color.fromARGB(255, 0, 206, 203),
-                ),
-              ),
-              child: child!,
-            ));
-
-    if (newDateRange == null) {
-      return;
-    }
-
-    setState(() {
-      tempFilter["dateRange"] = newDateRange;
-      tempFilter["dateRangeChanged"] = true;
-    });
-  }
-
-  Map<String, dynamic> tempFilter = {};
-
-  @override
-  void initState() {
-    tempFilter = Map.from(permFilter);
-  }
-
- @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final start = tempFilter["dateRange"].start;
-    final end = tempFilter["dateRange"]!.end;
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.primary,
-        title: const Text('Filter'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(25.0),
-        child: Column(
-          children: [
-            TextFormField(
-              initialValue: tempFilter["searchText"],
-              onChanged: (newText) {
-                tempFilter["searchText"] = newText;
-              },
-              decoration: const InputDecoration(
-                isDense: true,
-                contentPadding: EdgeInsets.only(left: 0),
-                prefixIcon: Icon(Icons.search),
-                filled: true,
-                border: OutlineInputBorder(),
-                hintText: 'Search',
-              ),
-            ),
-            const SizedBox(
-              height: 35,
-            ),
-            TextFormField(
-              initialValue: tempFilter["location"],
-              onChanged: (newText) {
-                setState(() {
-                  tempFilter["location"] = newText;
-                });
-              },
-              decoration: const InputDecoration(
-                isDense: true,
-                contentPadding: EdgeInsets.only(left: 0),
-                prefixIcon: Icon(Icons.room),
-                filled: true,
-                border: OutlineInputBorder(),
-                hintText: 'Location',
-              ),
-            ),
-            Row(
-              children: [
-                const Icon(Icons.my_location),
-                SizedBox(
-                  width: 120,
-                  child: Text(
-                      "   Within ${tempFilter["radius"].round().toString()} miles"),
-                ),
-                Expanded(
-                  child: Slider(
-                    min: 1,
-                    max: 200,
-                    divisions: 199,
-                    activeColor: theme.colorScheme.primary,
-                    inactiveColor: HSLColor.fromColor(theme.colorScheme.primary)
-                        .withLightness(0.9)
-                        .toColor(),
-                    value: tempFilter["radius"],
-                    onChanged: (value) {
-                      setState(() {
-                        tempFilter["radius"] = value;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 35),
-            SizedBox(
-                //padding: const EdgeInsets.only(right: 8),
-                width: double.infinity,
-                height: 38,
-                child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        padding: const EdgeInsets.all(10.0),
-                        shape: const RoundedRectangleBorder(
-                            side: BorderSide(color: Colors.black, width: 1),
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(5),
-                                topRight: Radius.circular(5),
-                                bottomRight: Radius.circular(5),
-                                bottomLeft: Radius.circular(5)))),
-                    onPressed: pickDateRange,
-                    icon: const Icon(Icons.date_range, color: Colors.black),
-                    label: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        " ${DateFormat('MMM d, yyyy').format(start)} 12AM to ${DateFormat('MMM d, yyyy').format(end)} 12AM",
-                        //'${start.year}/${start.month}/${start.day} to ${end.year}/${end.month}/${end.day}',
-                        style: const TextStyle(color: Colors.black),
-                        textAlign: TextAlign.left,
-                      ),
-                    ))),
-            const SizedBox(height: 35),
-            Row(
-              children: [
-                Checkbox(
-                    onChanged: (state) {
-                      setState(() {
-                        tempFilter["signUp"] = state;
-                      });
-                    },
-                    value: tempFilter["signUp"]),
-                const Text("Instant Sign-up Oppurtunities"),
-              ],
-            ),
-            Row(
-              children: [
-                Checkbox(
-                    onChanged: (state) {
-                      setState(() {
-                        tempFilter["virtual"] = state;
-                      });
-                    },
-                    value: tempFilter["virtual"]),
-                const Text("Virtual"),
-              ],
-            ),
-            const Expanded(
-                child: SizedBox(
-              width: 5,
-            )),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.secondary,
-                ),
-                onPressed: () async {
-                  //Convert location into lat and lon
-                  if (tempFilter["location"] != permFilter["location"]) {
-                    if (tempFilter["location"] != "Current position" &&
-                        tempFilter["location"] != '') {
-                      try {
-                        final response = await http
-                            .get(Uri.parse(
-                                "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${tempFilter["location"]}"))
-                            .timeout(const Duration(seconds: 30));
-
-                        if (response.statusCode == 200) {
-                          final List<dynamic> respJson =
-                              json.decode(response.body);
-                          setState(() {
-                            if (respJson.isNotEmpty) {
-                              tempFilter["lat"] =
-                                  double.parse(respJson[0]["lat"]);
-                              tempFilter["lon"] =
-                                  double.parse(respJson[0]["lon"]);
-                            }
-                          });
-                        } else {
-                          // ignore: use_build_context_synchronously
-                          showSnackBar(
-                            "Failed to geocode. Try again later.",
-                            context,
-                            const Color.fromARGB(255, 255, 94, 91),
-                          );
-                          // Add screen message
-                        }
-                      } on SocketException {
-                        showSnackBar(
-                          "Failed to geocode. Try again later.",
-                          context,
-                          const Color.fromARGB(255, 255, 94, 91),
-                        );
-                      }
-                    } else if (tempFilter["location"] != '') {
-                      //_getCurrentLocation();
-                      setState(() {
-                        if (uposition != null) {
-                          tempFilter["lat"] = uposition!.latitude;
-                          tempFilter["lon"] = uposition!.longitude;
-                        }
-                      });
-                    }
-                  }
-
-                  //Make user input permanant
-                  permFilter = Map.from(tempFilter);
-                  // ignore: use_build_context_synchronously
-                  Navigator.pop(context, permFilter);
-                },
-                child: Text("Save",
-                    style: TextStyle(color: theme.colorScheme.primary)),
-              ),
-            ),
-          ],
         ),
       ),
     );
