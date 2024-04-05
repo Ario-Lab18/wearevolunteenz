@@ -39,10 +39,6 @@ class MyApp extends StatelessWidget {
           sliderTheme: const SliderThemeData(
             showValueIndicator: ShowValueIndicator.never,
           ),
-          checkboxTheme: CheckboxThemeData(
-            checkColor: MaterialStateProperty.all(Colors.black),
-            fillColor: MaterialStateProperty.all(Color.fromARGB(255, 255, 255, 234)),
-          ),
           useMaterial3: true,
           colorScheme: const ColorScheme.light().copyWith(
             primary: const Color.fromARGB(255, 0, 206, 203),
@@ -234,7 +230,7 @@ class _FilterPageState extends State<FilterPage> {
     tempFilter = Map.from(permFilter);
   }
 
- @override
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final start = tempFilter["dateRange"].start;
@@ -284,7 +280,7 @@ class _FilterPageState extends State<FilterPage> {
             ),
             SizedBox(
               height: 10,
-              ),
+            ),
             Row(
               children: [
                 const Icon(Icons.my_location),
@@ -343,24 +339,34 @@ class _FilterPageState extends State<FilterPage> {
             Row(
               children: [
                 Checkbox(
-                    onChanged: (state) {
-                      setState(() {
-                        tempFilter["signUp"] = state;
-                      });
-                    },
-                    value: tempFilter["signUp"]),
+                  onChanged: (state) {
+                    setState(() {
+                      tempFilter["signUp"] = state;
+                    });
+                  },
+                  value: tempFilter["signUp"],
+                  checkColor: Colors.white,
+                  fillColor: (tempFilter["signUp"])
+                      ? MaterialStateProperty.all(Colors.blue)
+                      : MaterialStateProperty.all(theme.colorScheme.background),
+                ),
                 const Text("Instant Sign-up Oppurtunities"),
               ],
             ),
             Row(
               children: [
                 Checkbox(
-                    onChanged: (state) {
-                      setState(() {
-                        tempFilter["virtual"] = state;
-                      });
-                    },
-                    value: tempFilter["virtual"]),
+                  onChanged: (state) {
+                    setState(() {
+                      tempFilter["virtual"] = state;
+                    });
+                  },
+                  value: tempFilter["virtual"],
+                  checkColor: Colors.white,
+                  fillColor: (tempFilter["virtual"])
+                      ? MaterialStateProperty.all(Colors.blue)
+                      : MaterialStateProperty.all(theme.colorScheme.background),
+                ),
                 const Text("Virtual"),
               ],
             ),
@@ -438,7 +444,6 @@ class _FilterPageState extends State<FilterPage> {
     );
   }
 }
-
 
 class Opp extends StatefulWidget {
   @override
