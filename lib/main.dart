@@ -285,7 +285,7 @@ class _FilterPageState extends State<FilterPage> {
               children: [
                 const Icon(Icons.my_location),
                 SizedBox(
-                  width: 120,
+                  width: 125,
                   child: Text(
                       "  Within ${tempFilter["radius"].round().toString()} miles"),
                 ),
