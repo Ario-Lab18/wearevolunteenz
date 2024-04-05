@@ -126,304 +126,7 @@ class _HomeState extends State<Home> {
   }
 }
 
-class FilterPage extends StatefulWidget {
-  Map<String, dynamic> permFilter;
 
-  FilterPage({super.key, required this.permFilter});
-
-  @override
-  // ignore: no_logic_in_create_state
-  State<FilterPage> createState() => _FilterPageState(permFilter: permFilter);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class _FilterPageState extends State<FilterPage> {
-  Position? uposition;
-
-  Map<String, dynamic> permFilter;
-
-  _FilterPageState({
-    required this.permFilter,
-  });
-
-  void _getCurrentLocation() async {
-    Position? position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-
-    position = await Geolocator.getLastKnownPosition();
-
-    setState(() {
-      uposition = position;
-    });
-  }
-
-  void _determinePosition() async {
-    // Check if location services are enabled
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled return an error message
-      return Future.error('Location services are disabled.');
-    }
-
-    // Check location permissions
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-  }
-
-  Future pickDateRange() async {
-    final themeData = Theme.of(context);
-    DateTimeRange? newDateRange = await showDateRangePicker(
-        context: context,
-        initialDateRange: tempFilter["dateRange"],
-        firstDate: DateTime(1900),
-        lastDate: DateTime(2100),
-        builder: (context, Widget? child) => Theme(
-              data: ThemeData.light().copyWith(
-                dialogTheme: const DialogTheme(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(0.0)),
-                  ),
-                ),
-                textTheme: const TextTheme(
-                  titleSmall: TextStyle(fontSize: 20.0), // calendar "Select"
-                  titleLarge: TextStyle(fontSize: 16.0), // calendar "dates"
-                  labelLarge: TextStyle(fontSize: 20.0), // text field "Select"
-                  headlineLarge: TextStyle(fontSize: 16.0), // textfield "dates"
-                  bodyMedium:
-                      TextStyle(color: Colors.black), // calendar actual dates
-                  bodyLarge: TextStyle(color: Colors.black),
-                ),
-                //useMaterial3: true,
-                colorScheme: const ColorScheme.light(
-                  background: Color.fromARGB(255, 255, 0, 0),
-                  secondaryContainer: const Color.fromARGB(255, 255, 237, 102),
-                  surface: const Color.fromARGB(255, 253, 253, 188),
-                  primary: const Color.fromARGB(255, 0, 206, 203),
-                ),
-              ),
-              child: child!,
-            ));
-
-    if (newDateRange == null) {
-      return;
-    }
-
-    setState(() {
-      tempFilter["dateRange"] = newDateRange;
-      tempFilter["dateRangeChanged"] = true;
-    });
-  }
-
-  Map<String, dynamic> tempFilter = {};
-
-  @override
-  void initState() {
-    tempFilter = Map.from(permFilter);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!
-        .copyWith(color: theme.colorScheme.secondary, fontSize: 40);
-    final start = tempFilter["dateRange"].start;
-    final end = tempFilter["dateRange"]!.end;
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.primary,
-        title: const Text('Filter'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(25.0),
-        child: Column(
-          children: [
-            TextFormField(
-              initialValue: tempFilter["searchText"],
-              onChanged: (newText) {
-                tempFilter["searchText"] = newText;
-              },
-              decoration: const InputDecoration(
-                isDense: true,
-                contentPadding: EdgeInsets.only(left: 0),
-                prefixIcon: Icon(Icons.search),
-                filled: true,
-                border: OutlineInputBorder(),
-                hintText: 'Search',
-              ),
-            ),
-            SizedBox(
-              height: 35,
-            ),
-            TextFormField(
-              initialValue: tempFilter["location"],
-              onChanged: (newText) {
-                setState(() {
-                  tempFilter["location"] = newText;
-                });
-              },
-              decoration: const InputDecoration(
-                isDense: true,
-                contentPadding: EdgeInsets.only(left: 0),
-                prefixIcon: Icon(Icons.room),
-                filled: true,
-                border: OutlineInputBorder(),
-                hintText: 'Location',
-              ),
-            ),
-            Row(
-              children: [
-                Icon(Icons.my_location),
-                SizedBox(
-                  width: 120,
-                  child: Text(
-                      "   Within ${tempFilter["radius"].round().toString()} miles"),
-                ),
-                Expanded(
-                  child: Slider(
-                    min: 1,
-                    max: 200,
-                    divisions: 199,
-                    activeColor: theme.colorScheme.primary,
-                    inactiveColor: HSLColor.fromColor(theme.colorScheme.primary)
-                        .withLightness(0.9)
-                        .toColor(),
-                    value: tempFilter["radius"],
-                    onChanged: (value) {
-                      setState(() {
-                        tempFilter["radius"] = value;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 35),
-            Container(
-                //padding: const EdgeInsets.only(right: 8),
-                width: double.infinity,
-                height: 38,
-                child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        padding: const EdgeInsets.all(10.0),
-                        shape: const RoundedRectangleBorder(
-                            side: BorderSide(color: Colors.black, width: 1),
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(5),
-                                topRight: Radius.circular(5),
-                                bottomRight: Radius.circular(5),
-                                bottomLeft: Radius.circular(5)))),
-                    onPressed: pickDateRange,
-                    icon: const Icon(Icons.date_range, color: Colors.black),
-                    label: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        DateFormat('MMM d, yyyy').format(start) +
-                            " to " +
-                            DateFormat('MMM d, yyyy').format(end),
-                        //'${start.year}/${start.month}/${start.day} to ${end.year}/${end.month}/${end.day}',
-                        style: const TextStyle(color: Colors.black),
-                        textAlign: TextAlign.left,
-                      ),
-                    ))),
-            const SizedBox(height: 35),
-            Row(
-              children: [
-                Checkbox(
-                    onChanged: (state) {
-                      setState(() {
-                        tempFilter["signUp"] = state;
-                      });
-                    },
-                    value: tempFilter["signUp"]),
-                Text("Instant Sign-up Oppurtunities Only"),
-              ],
-            ),
-            Expanded(
-                child: SizedBox(
-              width: 5,
-            )),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.secondary,
-                ),
-                onPressed: () async {
-                  //Convert location into lat and lon
-                  if (tempFilter["location"] != permFilter["location"]) {
-                    if (tempFilter["location"] != "Current position" &&
-                        tempFilter["location"] != '') {
-                      try {
-                        final response = await http
-                            .get(Uri.parse(
-                                "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${tempFilter["location"]}"))
-                            .timeout(const Duration(seconds: 30));
-
-                        if (response.statusCode == 200) {
-                          final List<dynamic> respJson =
-                              json.decode(response.body);
-                          setState(() {
-                            if (respJson.isNotEmpty) {
-                              tempFilter["lat"] =
-                                  double.parse(respJson[0]["lat"]);
-                              tempFilter["lon"] =
-                                  double.parse(respJson[0]["lon"]);
-                            }
-                          });
-                        } else {
-                          showSnackBar(
-                            "Failed to geocode. Try again later.",
-                            context,
-                            const Color.fromARGB(255, 255, 94, 91),
-                          );
-                          // Add screen message
-                        }
-                      } on SocketException {
-                        showSnackBar(
-                          "Failed to geocode. Try again later.",
-                          context,
-                          const Color.fromARGB(255, 255, 94, 91),
-                        );
-                      }
-                    } else if (tempFilter["location"] != '') {
-                      //_getCurrentLocation();
-                      setState(() {
-                        if (uposition != null) {
-                          tempFilter["lat"] = uposition!.latitude;
-                          tempFilter["lon"] = uposition!.longitude;
-                        }
-                      });
-                    }
-                  }
-
-                  //Make user input permanant
-                  permFilter = Map.from(tempFilter);
-
-                  Navigator.pop(context, permFilter);
-                },
-                child: Text("Save",
-                    style: TextStyle(color: theme.colorScheme.primary)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class Opp extends StatefulWidget {
   @override
@@ -453,6 +156,7 @@ class _OppState extends State<Opp> {
     "lat": 0.0,
     "lon": 0.0,
     "signUp": false,
+    "virtual": false,
   };
 
   @override
@@ -545,7 +249,6 @@ class _OppState extends State<Opp> {
   List filterItems() {
     List tmpList = [];
     tmpList = List.from(_results);
-    print(_results.length.toString() + " " + oppItems.length.toString());
     /*
     if (searchText.isEmpty && locTitle.isEmpty && !dateRangeChanged) {
       tmpList = List.from(oppItems);
@@ -576,7 +279,6 @@ class _OppState extends State<Opp> {
   Future _refresh() async {
     setState(() => oppItems.clear());
     final Map<String, dynamic> resp = await fetchJsonDemoData(context);
-    print(resp["opps"].length);
     setState(() {
       if (resp.isNotEmpty) {
         oppItems = resp["opps"];
@@ -585,61 +287,40 @@ class _OppState extends State<Opp> {
   }
 
   void _handlefilter(Map<String, dynamic> permFilter) {
-    _results.clear();
-    var searchText = permFilter["searchText"];
-    for (var item in oppItems) {
-      var searchIn = item["opp"] +
-          ' ' +
-          item["org"] +
-          ' ' +
-          item["description"].join('\n');
-      searchIn = searchIn.toLowerCase();
+    _results = List.from(oppItems);
 
-      DateTime sd, ed;
+    setState(() {
+      _results.removeWhere((item) => !(item["opp"] +
+              ' ' +
+              item["org"] +
+              ' ' +
+              item["description"].join('\n').toLowerCase())
+          .contains(permFilter["searchText"].toLowerCase()));
 
-      if (item["dateStart"].length == 0) {
-        sd = DateTime.parse('2100-01-01');
-      } else {
-        sd = DateTime.parse(item["dateStart"]);
-      }
+      _results.removeWhere((item) => (((item["dateStart"].length == 0)
+                  ? DateTime.parse('2100-01-01')
+                  : DateTime.parse(item["dateStart"]))
+              .compareTo(permFilter["dateRange"].start) <
+          0));
 
-      if (item["dateEnd"].length == 0) {
-        ed = DateTime.parse('1900-01-01');
-      } else {
-        ed = DateTime.parse(item["dateEnd"]);
-      }
+      _results.removeWhere((item) => ((((item["dateEnd"].length == 0)
+                  ? DateTime.parse('1900-01-01')
+                  : DateTime.parse(item["dateEnd"]))
+              .compareTo(permFilter["dateRange"].end) >
+          -1)));
 
-      double dist = 0;
+      _results.removeWhere((item) => (item["lat"].isNotEmpty &&
+          (((Geolocator.distanceBetween(permFilter['lat'], permFilter['lon'],
+                      double.parse(item["lat"]), double.parse(item["lon"]))) /
+                  1609.344) >
+              permFilter["radius"])));
 
-      if (item["lat"].isNotEmpty) {
-        dist = Geolocator.distanceBetween(permFilter['lat'], permFilter['lon'],
-            double.parse(item["lat"]), double.parse(item["lon"]));
+      _results.removeWhere(
+          (item) => (permFilter["signUp"] && (item["type"] != 'Sign-up')));
 
-        dist = dist / 1609.344;
-      }
-
-      if (sd.compareTo(permFilter["dateRange"].start) > 0 &&
-          ed.compareTo(permFilter["dateRange"].end) < 0) {
-        if (searchIn.contains(searchText.toLowerCase())) {
-          if (dist <= permFilter["radius"]) {
-            if (permFilter["signUp"]) {
-              if (item["type"] == 'Sign-up') {
-                setState(() {
-                  _results.add(item);
-                });
-              }
-            } else {
-              setState(() {
-                _results.add(item);
-              });
-            }
-          } else {
-            print(
-                "${item["org"]} - ${item["opp"]} - ${permFilter["radius"]} - ${dist}\n");
-          }
-        }
-      }
-    }
+      _results.removeWhere((item) => (permFilter["virtual"] &&
+          ((item["location"] != 'Virtual') && (item["location"].isNotEmpty))));
+    });
   }
 
   @override
@@ -675,7 +356,6 @@ class _OppState extends State<Opp> {
               if (snapshot.hasData) {
                 if (snapshot.data!.isNotEmpty && oppItems.isEmpty) {
                   oppItems = List.from(snapshot.data!["opps"]);
-                  print(oppItems.length);
                   _results = List.from(oppItems);
                 }
                 return Column(children: <Widget>[
@@ -700,7 +380,6 @@ class _OppState extends State<Opp> {
                                   textAlign: TextAlign.center),
                               onPressed: () async {
                                 if (_selectedItems.isEmpty) return;
-
                                 var test = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -713,7 +392,6 @@ class _OppState extends State<Opp> {
                                   permFilter = test as Map<String, dynamic>;
                                 }
 
-                                print(permFilter);
                                 _handlefilter(permFilter);
                               },
                               icon: const Icon(Icons.filter_alt),
@@ -804,20 +482,21 @@ class _OppState extends State<Opp> {
                                       child: const Text('ⓘ',
                                           style: TextStyle(fontSize: 24)),
                                     ),
-                                    title:
-                                        (items[index]["location"] == "Virtual")
-                                            ? Text(
-                                                "${items[index]["opp"]}  ᯤ",
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              )
-                                            : Text(
-                                                "${items[index]["opp"]}",
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
+                                    title: (items[index]["location"] ==
+                                                "Virtual" ||
+                                            items[index]["location"].isEmpty)
+                                        ? Text(
+                                            "${items[index]["opp"]} 🛜",
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          )
+                                        : Text(
+                                            "${items[index]["opp"]}",
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                     subtitle: Text(items[index]["org"]),
                                     contentPadding:
                                         const EdgeInsets.only(left: 10),
@@ -829,6 +508,7 @@ class _OppState extends State<Opp> {
                                       if (await canLaunchUrl(url)) {
                                         await launchUrl(
                                             url); //forceWebView is true now
+                                        // ignore: use_build_context_synchronously
                                         bool result = await showDialog(
                                           context: context,
                                           builder: (context) => AlertDialog(
@@ -881,6 +561,7 @@ class _OppState extends State<Opp> {
                                         });
                                         saveAppliedFile();
                                       } else {
+                                        // ignore: use_build_context_synchronously
                                         showSnackBar('Could not open website',
                                             context, theme.colorScheme.error);
                                       }
@@ -1335,6 +1016,7 @@ class OrgInfo extends StatelessWidget {
                         if (await canLaunchUrl(url)) {
                           await launchUrl(url); //forceWebView is true now
                         } else {
+                          // ignore: use_build_context_synchronously
                           showSnackBar('Could not open website', context,
                               theme.colorScheme.error);
                         }
@@ -1412,6 +1094,7 @@ class OppInfo extends StatelessWidget {
                         if (await canLaunchUrl(url)) {
                           await launchUrl(url); //forceWebView is true now
                         } else {
+                          // ignore: use_build_context_synchronously
                           showSnackBar('Could not open website', context,
                               theme.colorScheme.error);
                         }
@@ -1440,10 +1123,7 @@ class OppInfo extends StatelessWidget {
                     Text(
                         oppItems["dateStart"].isEmpty
                             ? ""
-                            : DateFormat("EEE, MMM-d-yyyy, h:mm a").format(
-                                    DateTime.parse(oppItems["dateStart"])
-                                        .toLocal()) +
-                                "\n",
+                            : "${DateFormat("EEE, MMM-d-yyyy, h:mm a").format(DateTime.parse(oppItems["dateStart"]).toLocal())}\n",
                         textAlign: TextAlign.left,
                         softWrap: true),
                     const Text('End Date',
@@ -1454,10 +1134,7 @@ class OppInfo extends StatelessWidget {
                     Text(
                         oppItems["dateEnd"].isEmpty
                             ? ""
-                            : DateFormat("EEE, MMM-d-yyyy, h:mm a").format(
-                                    DateTime.parse(oppItems["dateEnd"])
-                                        .toLocal()) +
-                                "\n",
+                            : "${DateFormat("EEE, MMM-d-yyyy, h:mm a").format(DateTime.parse(oppItems["dateEnd"]).toLocal())}\n",
                         textAlign: TextAlign.left,
                         softWrap: true),
                     const Text('Requirements',
@@ -1504,6 +1181,318 @@ class OppInfo extends StatelessWidget {
   }
 }
 
+class FilterPage extends StatefulWidget {
+  @override
+  FilterPage({super.key, required this.permFilter});
+
+  Map<String, dynamic> permFilter;
+
+  @override
+  // ignore: no_logic_in_create_state
+  State<FilterPage> createState() => _FilterPageState(permFilter: permFilter);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class _FilterPageState extends State<FilterPage> {
+  @override
+  _FilterPageState({
+    required this.permFilter,
+  });
+  
+  Position? uposition;
+
+  Map<String, dynamic> permFilter;
+
+  void _getCurrentLocation() async {
+    Position? position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+
+    position = await Geolocator.getLastKnownPosition();
+
+    setState(() {
+      uposition = position;
+    });
+  }
+
+  void _determinePosition() async {
+    // Check if location services are enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled return an error message
+      return Future.error('Location services are disabled.');
+    }
+
+    // Check location permissions
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+  }
+
+  Future pickDateRange() async {
+    final themeData = Theme.of(context);
+    DateTimeRange? newDateRange = await showDateRangePicker(
+        context: context,
+        initialDateRange: tempFilter["dateRange"],
+        firstDate: DateTime(1900),
+        lastDate: DateTime(2100),
+        builder: (context, Widget? child) => Theme(
+              data: ThemeData.light().copyWith(
+                dialogTheme: const DialogTheme(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(0.0)),
+                  ),
+                ),
+                textTheme: const TextTheme(
+                  titleSmall: TextStyle(fontSize: 20.0), // calendar "Select"
+                  titleLarge: TextStyle(fontSize: 16.0), // calendar "dates"
+                  labelLarge: TextStyle(fontSize: 20.0), // text field "Select"
+                  headlineLarge: TextStyle(fontSize: 16.0), // textfield "dates"
+                  bodyMedium:
+                      TextStyle(color: Colors.black), // calendar actual dates
+                  bodyLarge: TextStyle(color: Colors.black),
+                ),
+                //useMaterial3: true,
+                colorScheme: const ColorScheme.light(
+                  background: Color.fromARGB(255, 255, 0, 0),
+                  secondaryContainer: Color.fromARGB(255, 255, 237, 102),
+                  surface: Color.fromARGB(255, 253, 253, 188),
+                  primary: Color.fromARGB(255, 0, 206, 203),
+                ),
+              ),
+              child: child!,
+            ));
+
+    if (newDateRange == null) {
+      return;
+    }
+
+    setState(() {
+      tempFilter["dateRange"] = newDateRange;
+      tempFilter["dateRangeChanged"] = true;
+    });
+  }
+
+  Map<String, dynamic> tempFilter = {};
+
+  @override
+  void initState() {
+    tempFilter = Map.from(permFilter);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final style = theme.textTheme.displayMedium!
+        .copyWith(color: theme.colorScheme.secondary, fontSize: 40);
+    final start = tempFilter["dateRange"].start;
+    final end = tempFilter["dateRange"]!.end;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.primary,
+        title: const Text('Filter'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(25.0),
+        child: Column(
+          children: [
+            TextFormField(
+              initialValue: tempFilter["searchText"],
+              onChanged: (newText) {
+                tempFilter["searchText"] = newText;
+              },
+              decoration: const InputDecoration(
+                isDense: true,
+                contentPadding: EdgeInsets.only(left: 0),
+                prefixIcon: Icon(Icons.search),
+                filled: true,
+                border: OutlineInputBorder(),
+                hintText: 'Search',
+              ),
+            ),
+            const SizedBox(
+              height: 35,
+            ),
+            TextFormField(
+              initialValue: tempFilter["location"],
+              onChanged: (newText) {
+                setState(() {
+                  tempFilter["location"] = newText;
+                });
+              },
+              decoration: const InputDecoration(
+                isDense: true,
+                contentPadding: EdgeInsets.only(left: 0),
+                prefixIcon: Icon(Icons.room),
+                filled: true,
+                border: OutlineInputBorder(),
+                hintText: 'Location',
+              ),
+            ),
+            Row(
+              children: [
+                const Icon(Icons.my_location),
+                SizedBox(
+                  width: 120,
+                  child: Text(
+                      "   Within ${tempFilter["radius"].round().toString()} miles"),
+                ),
+                Expanded(
+                  child: Slider(
+                    min: 1,
+                    max: 200,
+                    divisions: 199,
+                    activeColor: theme.colorScheme.primary,
+                    inactiveColor: HSLColor.fromColor(theme.colorScheme.primary)
+                        .withLightness(0.9)
+                        .toColor(),
+                    value: tempFilter["radius"],
+                    onChanged: (value) {
+                      setState(() {
+                        tempFilter["radius"] = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 35),
+            SizedBox(
+                //padding: const EdgeInsets.only(right: 8),
+                width: double.infinity,
+                height: 38,
+                child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.all(10.0),
+                        shape: const RoundedRectangleBorder(
+                            side: BorderSide(color: Colors.black, width: 1),
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(5),
+                                topRight: Radius.circular(5),
+                                bottomRight: Radius.circular(5),
+                                bottomLeft: Radius.circular(5)))),
+                    onPressed: pickDateRange,
+                    icon: const Icon(Icons.date_range, color: Colors.black),
+                    label: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        " ${DateFormat('MMM d, yyyy').format(start)} 12AM to ${DateFormat('MMM d, yyyy').format(end)} 12AM",
+                        //'${start.year}/${start.month}/${start.day} to ${end.year}/${end.month}/${end.day}',
+                        style: const TextStyle(color: Colors.black),
+                        textAlign: TextAlign.left,
+                      ),
+                    ))),
+            const SizedBox(height: 35),
+            Row(
+              children: [
+                Checkbox(
+                    onChanged: (state) {
+                      setState(() {
+                        tempFilter["signUp"] = state;
+                      });
+                    },
+                    value: tempFilter["signUp"]),
+                const Text("Instant Sign-up Oppurtunities"),
+              ],
+            ),
+            Row(
+              children: [
+                Checkbox(
+                    onChanged: (state) {
+                      setState(() {
+                        tempFilter["virtual"] = state;
+                      });
+                    },
+                    value: tempFilter["virtual"]),
+                const Text("Virtual"),
+              ],
+            ),
+            const Expanded(
+                child: SizedBox(
+              width: 5,
+            )),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.secondary,
+                ),
+                onPressed: () async {
+                  //Convert location into lat and lon
+                  if (tempFilter["location"] != permFilter["location"]) {
+                    if (tempFilter["location"] != "Current position" &&
+                        tempFilter["location"] != '') {
+                      try {
+                        final response = await http
+                            .get(Uri.parse(
+                                "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${tempFilter["location"]}"))
+                            .timeout(const Duration(seconds: 30));
+
+                        if (response.statusCode == 200) {
+                          final List<dynamic> respJson =
+                              json.decode(response.body);
+                          setState(() {
+                            if (respJson.isNotEmpty) {
+                              tempFilter["lat"] =
+                                  double.parse(respJson[0]["lat"]);
+                              tempFilter["lon"] =
+                                  double.parse(respJson[0]["lon"]);
+                            }
+                          });
+                        } else {
+                          // ignore: use_build_context_synchronously
+                          showSnackBar(
+                            "Failed to geocode. Try again later.",
+                            context,
+                            const Color.fromARGB(255, 255, 94, 91),
+                          );
+                          // Add screen message
+                        }
+                      } on SocketException {
+                        showSnackBar(
+                          "Failed to geocode. Try again later.",
+                          context,
+                          const Color.fromARGB(255, 255, 94, 91),
+                        );
+                      }
+                    } else if (tempFilter["location"] != '') {
+                      //_getCurrentLocation();
+                      setState(() {
+                        if (uposition != null) {
+                          tempFilter["lat"] = uposition!.latitude;
+                          tempFilter["lon"] = uposition!.longitude;
+                        }
+                      });
+                    }
+                  }
+
+                  //Make user input permanant
+                  permFilter = Map.from(tempFilter);
+                  // ignore: use_build_context_synchronously
+                  Navigator.pop(context, permFilter);
+                },
+                child: Text("Save",
+                    style: TextStyle(color: theme.colorScheme.primary)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class MessagePage extends StatefulWidget {
   @override
   const MessagePage({super.key, required this.selectedItems});
@@ -1512,6 +1501,7 @@ class MessagePage extends StatefulWidget {
 
   @override
   State<MessagePage> createState() =>
+      // ignore: no_logic_in_create_state
       _MessagePageState(selectedItems: selectedItems);
 }
 
@@ -1660,6 +1650,7 @@ class _MessagePageState extends State<MessagePage> {
                   onPressed: () async {
                     if (!(msgBody.isEmpty || msgSubj.isEmpty)) {
                       await sendEmail();
+                      // ignore: use_build_context_synchronously
                       Navigator.pop(context);
                     }
                   },
@@ -1752,8 +1743,10 @@ $fileInBase64
     //final Map<String, dynamic> data = json.decode(response.body);
 
     if (response.statusCode != 200) {
+      // ignore: use_build_context_synchronously
       showSnackBar("Failed to send.", context, theme.colorScheme.error);
     } else {
+      // ignore: use_build_context_synchronously
       showSnackBar('Successfully sent.', context, theme.colorScheme.error);
     }
   }
@@ -1763,6 +1756,7 @@ $fileInBase64
     final user = await GoogleSignInApi.signin(theme, context);
 
     if (user == null) {
+      // ignore: use_build_context_synchronously
       showSnackBar(
           'Google authentication failed', context, theme.colorScheme.error);
       return;
@@ -1773,15 +1767,19 @@ $fileInBase64
     for (var s in selectedItems) {
       try {
         await testingEmail(user.email, auth, s["email"]);
+        // ignore: use_build_context_synchronously
         sendUsageData(context, 'emailed', s["name"]);
         i = i + 1;
       } on MailerException catch (e) {
+        // ignore: use_build_context_synchronously
         showSnackBar(e.toString(), context, theme.colorScheme.error);
       }
     }
     if (i == selectedItems.length) {
+      // ignore: use_build_context_synchronously
       showSnackBar('Sent all emails', context, theme.colorScheme.secondary);
     } else {
+      // ignore: use_build_context_synchronously
       showSnackBar('Sent $i of ${selectedItems.length} emails', context,
           theme.colorScheme.error);
     }
@@ -1830,6 +1828,7 @@ class GoogleSignInApi {
             child: ElevatedButton(
               onPressed: () async {
                 final user = await _googleSignIn.signIn();
+                // ignore: use_build_context_synchronously
                 Navigator.pop(context, user);
               },
               style: ElevatedButton.styleFrom(
