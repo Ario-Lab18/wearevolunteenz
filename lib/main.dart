@@ -347,7 +347,7 @@ class _FilterPageState extends State<FilterPage> {
                   value: tempFilter["signUp"],
                   checkColor: Colors.white,
                   fillColor: (tempFilter["signUp"])
-                      ? MaterialStateProperty.all(Colors.blue)
+                      ? MaterialStateProperty.all(Colors.black)
                       : MaterialStateProperty.all(theme.colorScheme.background),
                 ),
                 const Text("Instant Sign-up Oppurtunities"),
@@ -364,7 +364,7 @@ class _FilterPageState extends State<FilterPage> {
                   value: tempFilter["virtual"],
                   checkColor: Colors.white,
                   fillColor: (tempFilter["virtual"])
-                      ? MaterialStateProperty.all(Colors.blue)
+                      ? MaterialStateProperty.all(Colors.black)
                       : MaterialStateProperty.all(theme.colorScheme.background),
                 ),
                 const Text("Virtual"),
