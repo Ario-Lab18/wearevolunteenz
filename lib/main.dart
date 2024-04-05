@@ -40,7 +40,7 @@ class MyApp extends StatelessWidget {
             showValueIndicator: ShowValueIndicator.never,
           ),
           checkboxTheme: CheckboxThemeData(
-            checkColor: MaterialStateProperty.all(Colors.white),
+            checkColor: MaterialStateProperty.all(Colors.black),
             fillColor: MaterialStateProperty.all(Color.fromARGB(255, 255, 255, 234)),
           ),
           useMaterial3: true,
@@ -264,7 +264,7 @@ class _FilterPageState extends State<FilterPage> {
               ),
             ),
             const SizedBox(
-              height: 35,
+              height: 30,
             ),
             TextFormField(
               initialValue: tempFilter["location"],
@@ -282,6 +282,9 @@ class _FilterPageState extends State<FilterPage> {
                 hintText: 'Location',
               ),
             ),
+            SizedBox(
+              height: 10,
+              ),
             Row(
               children: [
                 const Icon(Icons.my_location),
@@ -309,7 +312,7 @@ class _FilterPageState extends State<FilterPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 35),
+            const SizedBox(height: 15),
             SizedBox(
                 //padding: const EdgeInsets.only(right: 8),
                 width: double.infinity,
