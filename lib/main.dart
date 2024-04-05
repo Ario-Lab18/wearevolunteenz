@@ -287,7 +287,7 @@ class _FilterPageState extends State<FilterPage> {
                 SizedBox(
                   width: 120,
                   child: Text(
-                      "   Within ${tempFilter["radius"].round().toString()} miles"),
+                      "  Within ${tempFilter["radius"].round().toString()} miles"),
                 ),
                 Expanded(
                   child: Slider(
@@ -716,7 +716,7 @@ class _OppState extends State<Opp> {
                                       ? '${oppItems.length} out of ${oppItems.length} matched'
                                       : '${_results.length} out of ${oppItems.length} matched'),
                                 */
-                                  style: const TextStyle(fontSize: 18),
+                                  style: const TextStyle(fontSize: 17),
                                   textAlign: TextAlign.center),
                               onPressed: () async {
                                 _determinePosition();
