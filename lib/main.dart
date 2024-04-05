@@ -122,6 +122,7 @@ class _HomeState extends State<Home> {
   }
 }
 
+// ignore: must_be_immutable
 class FilterPage extends StatefulWidget {
   @override
   FilterPage({super.key, required this.permFilter});
@@ -156,31 +157,7 @@ class _FilterPageState extends State<FilterPage> {
     });
   }
 
-  void _determinePosition() async {
-    // Check if location services are enabled
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      // Location services are not enabled return an error message
-      return Future.error('Location services are disabled.');
-    }
-
-    // Check location permissions
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-  }
-
   Future pickDateRange() async {
-    final themeData = Theme.of(context);
     DateTimeRange? newDateRange = await showDateRangePicker(
         context: context,
         initialDateRange: tempFilter["dateRange"],
@@ -202,7 +179,7 @@ class _FilterPageState extends State<FilterPage> {
                       TextStyle(color: Colors.black), // calendar actual dates
                   bodyLarge: TextStyle(color: Colors.black),
                 ),
-                //useMaterial3: true,
+                useMaterial3: true,
                 colorScheme: const ColorScheme.light(
                   background: Color.fromARGB(255, 255, 0, 0),
                   secondaryContainer: Color.fromARGB(255, 255, 237, 102),
@@ -227,6 +204,7 @@ class _FilterPageState extends State<FilterPage> {
 
   @override
   void initState() {
+    super.initState();
     tempFilter = Map.from(permFilter);
   }
 
@@ -278,7 +256,7 @@ class _FilterPageState extends State<FilterPage> {
                 hintText: 'Location',
               ),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Row(
@@ -719,7 +697,7 @@ class _OppState extends State<Opp> {
                                   style: const TextStyle(fontSize: 17),
                                   textAlign: TextAlign.center),
                               onPressed: () async {
-                                _determinePosition();
+                                //_determinePosition();
                                 var test = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
