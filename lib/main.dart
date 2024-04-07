@@ -243,6 +243,29 @@ class _FilterPageState extends State<FilterPage> {
     });
   }
 
+  void _determinePosition() async {
+    // Check if location services are enabled
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled return an error message
+      return Future.error('Location services are disabled.');
+    }
+
+    // Check location permissions
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error(
+          'Location permissions are permanently denied, we cannot request permissions.');
+    }
+  }
+
   Map<String, dynamic> tempFilter = {};
 
   @override
@@ -399,82 +422,94 @@ class _FilterPageState extends State<FilterPage> {
                 const Text("Virtual"),
               ],
             ),
-            TextButton(
-                onPressed: () {
-                  setState(() {
-                    tempFilter = Map.from(permFilter);
-                    searchText.text = tempFilter["searchText"];
-                    locText.text = tempFilter["location"];
-                  });
-                },
-                child: const Text("Reset values")),
             const Expanded(
                 child: SizedBox(
               width: 5,
             )),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.secondary,
-                ),
-                onPressed: () async {
-                  //Convert location into lat and lon
-                  if (tempFilter["location"] != permFilter["location"]) {
-                    if (tempFilter["location"] != "Current position" &&
-                        tempFilter["location"] != '') {
-                      try {
-                        final response = await http
-                            .get(Uri.parse(
-                                "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${tempFilter["location"]}, California"))
-                            .timeout(const Duration(seconds: 30));
-
-                        if (response.statusCode == 200) {
-                          final List<dynamic> respJson =
-                              json.decode(response.body);
-                          setState(() {
-                            if (respJson.isNotEmpty) {
-                              tempFilter["lat"] =
-                                  double.parse(respJson[0]["lat"]);
-                              tempFilter["lon"] =
-                                  double.parse(respJson[0]["lon"]);
+            Row(
+              children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.secondary,
+                        ),
+                        onPressed: () async {
+                          //Convert location into lat and lon
+                          if (tempFilter["location"] != permFilter["location"]) {
+                            if (tempFilter["location"].toLowerCase() != "current position" &&
+                                tempFilter["location"] != '') {
+                              try {
+                                final response = await http
+                                    .get(Uri.parse(
+                                        "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${tempFilter["location"]}, California"))
+                                    .timeout(const Duration(seconds: 30));
+                                      
+                                if (response.statusCode == 200) {
+                                  final List<dynamic> respJson =
+                                      json.decode(response.body);
+                                  setState(() {
+                                    if (respJson.isNotEmpty) {
+                                      tempFilter["lat"] =
+                                          double.parse(respJson[0]["lat"]);
+                                      tempFilter["lon"] =
+                                          double.parse(respJson[0]["lon"]);
+                                    }
+                                  });
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  showSnackBar(
+                                    "Failed to geocode. Try again later.",
+                                    context,
+                                    const Color.fromARGB(255, 255, 94, 91),
+                                  );
+                                  // Add screen message
+                                }
+                              } on SocketException {
+                                showSnackBar(
+                                  "Failed to geocode. Try again later.",
+                                  context,
+                                  const Color.fromARGB(255, 255, 94, 91),
+                                );
+                              }
+                            } else if (tempFilter["location"] != '') {
+                              _determinePosition();
+                              _getCurrentLocation();
+                              setState(() {
+                                if (uposition != null) {
+                                  tempFilter["lat"] = uposition!.latitude;
+                                  tempFilter["lon"] = uposition!.longitude;
+                                }
+                              });
                             }
-                          });
-                        } else {
+                          }
+                                      
+                          //Make user input permanant
+                          permFilter = Map.from(tempFilter);
                           // ignore: use_build_context_synchronously
-                          showSnackBar(
-                            "Failed to geocode. Try again later.",
-                            context,
-                            const Color.fromARGB(255, 255, 94, 91),
-                          );
-                          // Add screen message
-                        }
-                      } on SocketException {
-                        showSnackBar(
-                          "Failed to geocode. Try again later.",
-                          context,
-                          const Color.fromARGB(255, 255, 94, 91),
-                        );
-                      }
-                    } else if (tempFilter["location"] != '') {
-                      _getCurrentLocation();
-                      setState(() {
-                        if (uposition != null) {
-                          tempFilter["lat"] = uposition!.latitude;
-                          tempFilter["lon"] = uposition!.longitude;
-                        }
-                      });
-                    }
-                  }
-
-                  //Make user input permanant
-                  permFilter = Map.from(tempFilter);
-                  // ignore: use_build_context_synchronously
-                  Navigator.pop(context, permFilter);
-                },
-                child: Text("Save",
-                    style: TextStyle(color: theme.colorScheme.primary)),
-              ),
+                          Navigator.pop(context, permFilter);
+                        },
+                        child: Text("Save",
+                            style: TextStyle(color: theme.colorScheme.primary)),
+                                    ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          tempFilter = Map.from(permFilter);
+                          searchText.text = tempFilter["searchText"];
+                          locText.text = tempFilter["location"];
+                        });
+                      },
+                      child: const Text("Reset values")),
+                    ),
+                  ),
+              ],
             ),
           ],
         ),
@@ -757,7 +792,7 @@ class _OppState extends State<Opp> {
                                   style: const TextStyle(fontSize: 17),
                                   textAlign: TextAlign.center),
                               onPressed: () async {
-                                _determinePosition();
+                                //_determinePosition();
                                 var test = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
