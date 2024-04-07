@@ -1427,7 +1427,7 @@ class OppInfo extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          oppItems["opp"] + ' [Apply 🡵]\n',
+                          oppItems["opp"] + ' [Apply ↗️]\n',
                           textAlign: TextAlign.left,
                           overflow: TextOverflow.fade,
                         ),
