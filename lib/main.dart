@@ -186,8 +186,8 @@ class _FilterPageState extends State<FilterPage> {
     150
   ];
 
-    final locText = TextEditingController();
-    TextEditingController searchText = TextEditingController();
+  final locText = TextEditingController();
+  TextEditingController searchText = TextEditingController();
 
   void _getCurrentLocation() async {
     Position? position = await Geolocator.getCurrentPosition(
@@ -323,7 +323,8 @@ class _FilterPageState extends State<FilterPage> {
                     inactiveColor: HSLColor.fromColor(theme.colorScheme.primary)
                         .withLightness(0.9)
                         .toColor(),
-                    value: sliderValues.indexOf(tempFilter["radius"]).toDouble(),
+                    value:
+                        sliderValues.indexOf(tempFilter["radius"]).toDouble(),
                     onChanged: (value) {
                       setState(() {
                         tempFilter["radius"] = sliderValues[value.toInt()];
@@ -350,7 +351,10 @@ class _FilterPageState extends State<FilterPage> {
                                 bottomRight: Radius.circular(5),
                                 bottomLeft: Radius.circular(5)))),
                     onPressed: pickDateRange,
-                    icon: const Icon(Icons.date_range, color: Colors.black),
+                    icon: const Align(
+                        alignment: Alignment.centerLeft,
+                        child:
+                            const Icon(Icons.date_range, color: Colors.black)),
                     label: Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
