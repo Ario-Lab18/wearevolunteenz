@@ -147,8 +147,47 @@ class _FilterPageState extends State<FilterPage> {
   Position? uposition;
 
   Map<String, dynamic> permFilter;
-  List<int> values = [1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,35,40,45,50,55,60,65,70,80,90,100,110,120,130,140,150];
-  int selectedIndex = 0;
+  List<int> sliderValues = [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12,
+    14,
+    16,
+    18,
+    20,
+    22,
+    24,
+    26,
+    28,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70,
+    80,
+    90,
+    100,
+    110,
+    120,
+    130,
+    140,
+    150
+  ];
+
+    final locText = TextEditingController();
+    TextEditingController searchText = TextEditingController();
 
   void _getCurrentLocation() async {
     Position? position = await Geolocator.getCurrentPosition(
@@ -210,6 +249,8 @@ class _FilterPageState extends State<FilterPage> {
   void initState() {
     super.initState();
     tempFilter = Map.from(permFilter);
+    searchText.text = tempFilter["searchText"];
+    locText.text = tempFilter["location"];
   }
 
   @override
@@ -228,7 +269,8 @@ class _FilterPageState extends State<FilterPage> {
         child: Column(
           children: [
             TextFormField(
-              initialValue: tempFilter["searchText"],
+              controller: searchText,
+              //initialValue: tempFilter["searchText"],
               onChanged: (newText) {
                 tempFilter["searchText"] = newText;
               },
@@ -245,7 +287,8 @@ class _FilterPageState extends State<FilterPage> {
               height: 30,
             ),
             TextFormField(
-              initialValue: tempFilter["location"],
+              controller: locText,
+              //initialValue: tempFilter["location"],
               onChanged: (newText) {
                 setState(() {
                   tempFilter["location"] = newText;
@@ -274,17 +317,16 @@ class _FilterPageState extends State<FilterPage> {
                 Expanded(
                   child: Slider(
                     min: 0,
-                    max: (values.length).toDouble() - 1,
-                    divisions: values.length,
+                    max: (sliderValues.length).toDouble() - 1,
+                    divisions: sliderValues.length,
                     activeColor: theme.colorScheme.primary,
                     inactiveColor: HSLColor.fromColor(theme.colorScheme.primary)
                         .withLightness(0.9)
                         .toColor(),
-                    value: selectedIndex.toDouble(),
+                    value: sliderValues.indexOf(tempFilter["radius"]).toDouble(),
                     onChanged: (value) {
                       setState(() {
-                        selectedIndex = value.toInt();
-                        tempFilter["radius"] = values[selectedIndex];
+                        tempFilter["radius"] = sliderValues[value.toInt()];
                       });
                     },
                   ),
@@ -353,6 +395,15 @@ class _FilterPageState extends State<FilterPage> {
                 const Text("Virtual"),
               ],
             ),
+            TextButton(
+                onPressed: () {
+                  setState(() {
+                    tempFilter = Map.from(permFilter);
+                    searchText.text = tempFilter["searchText"];
+                    locText.text = tempFilter["location"];
+                  });
+                },
+                child: const Text("Reset values")),
             const Expanded(
                 child: SizedBox(
               width: 5,
@@ -371,7 +422,7 @@ class _FilterPageState extends State<FilterPage> {
                       try {
                         final response = await http
                             .get(Uri.parse(
-                                "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${tempFilter["location"]}"))
+                                "https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&q=${tempFilter["location"]}, California"))
                             .timeout(const Duration(seconds: 30));
 
                         if (response.statusCode == 200) {
@@ -452,7 +503,7 @@ class _OppState extends State<Opp> {
         end: DateTime.now().add(const Duration(days: 365))),
     "dateRangeChanged": false,
     "location": 'Current Location',
-    "radius": 100.0,
+    "radius": 1,
     "lat": 0.0,
     "lon": 0.0,
     "signUp": false,
@@ -702,7 +753,7 @@ class _OppState extends State<Opp> {
                                   style: const TextStyle(fontSize: 17),
                                   textAlign: TextAlign.center),
                               onPressed: () async {
-                                //_determinePosition();
+                                _determinePosition();
                                 var test = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -820,7 +871,11 @@ class _OppState extends State<Opp> {
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                    subtitle: Text(items[index]["org"]),
+                                    subtitle: (items[index]["dateStart"]
+                                            .isEmpty)
+                                        ? Text(items[index]["org"])
+                                        : Text(
+                                            "${items[index]["org"]}\n${DateFormat("MMM d, h:mm a").format(DateTime.parse(items[index]["dateStart"]).toLocal())}-${DateFormat("EEE, MMM-d-yyyy, h:mm a").format(DateTime.parse(items[index]["dateEnd"]).toLocal())}"),
                                     contentPadding:
                                         const EdgeInsets.only(left: 10),
                                     visualDensity: const VisualDensity(
