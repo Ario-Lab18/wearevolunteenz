@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -145,6 +147,8 @@ class _FilterPageState extends State<FilterPage> {
   Position? uposition;
 
   Map<String, dynamic> permFilter;
+  List<int> values = [1,2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24,26,28,30,35,40,45,50,55,60,65,70,80,90,100,110,120,130,140,150];
+  int selectedIndex = 0;
 
   void _getCurrentLocation() async {
     Position? position = await Geolocator.getCurrentPosition(
@@ -269,17 +273,18 @@ class _FilterPageState extends State<FilterPage> {
                 ),
                 Expanded(
                   child: Slider(
-                    min: 1,
-                    max: 200,
-                    divisions: 199,
+                    min: 0,
+                    max: (values.length).toDouble() - 1,
+                    divisions: values.length,
                     activeColor: theme.colorScheme.primary,
                     inactiveColor: HSLColor.fromColor(theme.colorScheme.primary)
                         .withLightness(0.9)
                         .toColor(),
-                    value: tempFilter["radius"],
+                    value: selectedIndex.toDouble(),
                     onChanged: (value) {
                       setState(() {
-                        tempFilter["radius"] = value;
+                        selectedIndex = value.toInt();
+                        tempFilter["radius"] = values[selectedIndex];
                       });
                     },
                   ),
