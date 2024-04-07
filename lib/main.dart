@@ -875,7 +875,7 @@ class _OppState extends State<Opp> {
                                             .isEmpty)
                                         ? Text(items[index]["org"])
                                         : Text(
-                                            "${items[index]["org"]}\n${DateFormat("MMM d, h:mm a").format(DateTime.parse(items[index]["dateStart"]).toLocal())}-${DateFormat("EEE, MMM-d-yyyy, h:mm a").format(DateTime.parse(items[index]["dateEnd"]).toLocal())}"),
+                                            "${items[index]["org"]}\n${DateFormat("MMM d, h:mm a").format(DateTime.parse(items[index]["dateStart"]).toLocal())}-${DateFormat("MMM d, h:mm a").format(DateTime.parse(items[index]["dateEnd"]).toLocal())}"),
                                     contentPadding:
                                         const EdgeInsets.only(left: 10),
                                     visualDensity: const VisualDensity(
