@@ -751,13 +751,7 @@ class _OppState extends State<Opp> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'weare',
-                  style: style,
-                  textAlign: TextAlign.center,
-                ),
-                Image.asset('assets/logo.png', scale: 6),
-                Text(
-                  'olunteenz',
+                  'VolunteerConnect',
                   style: style,
                   textAlign: TextAlign.center,
                 ),
