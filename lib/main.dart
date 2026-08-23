@@ -208,7 +208,7 @@ class _FilterPageState extends State<FilterPage> {
         lastDate: DateTime(2100),
         builder: (context, Widget? child) => Theme(
               data: ThemeData.light().copyWith(
-                dialogTheme: const DialogTheme(
+                dialogTheme: const DialogThemeData(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(0.0)),
                   ),
