@@ -1633,7 +1633,7 @@ class _MessagePageState extends State<MessagePage> {
   }
 
   void _pickFile() async {
-    FilePickerResult? result = await FilePicker.pickFiles(
+    final result = await FilePicker.pickFiles(
         // allowedExtensions: ['jpg', 'pdf', 'doc'],
         );
 
