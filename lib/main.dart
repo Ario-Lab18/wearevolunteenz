@@ -66,7 +66,7 @@ Future<String?> getDeviceIdentifier() async {
 
   if (Platform.isAndroid) {
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-    deviceIdentifier = androidInfo.serialNumber;
+    deviceIdentifier = androidInfo.id;
   } else if (Platform.isIOS) {
     IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
     deviceIdentifier = iosInfo.identifierForVendor;
@@ -1633,7 +1633,7 @@ class _MessagePageState extends State<MessagePage> {
   }
 
   void _pickFile() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await FilePicker.pickFiles(
         // allowedExtensions: ['jpg', 'pdf', 'doc'],
         );
 
