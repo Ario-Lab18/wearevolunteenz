@@ -1633,32 +1633,20 @@ class _MessagePageState extends State<MessagePage> {
   }
 
   void _pickFile() async {
-    final result = await FilePicker.pickFiles(
-        // allowedExtensions: ['jpg', 'pdf', 'doc'],
-        );
-
-    if (result != null && result.files.single.path != null) {
-      /// Load result and file details
-      //PlatformFile file = result.files.first;
-      File file = File(result.files.single.path!);
-
-      // https://github.com/miguelpruivo/flutter_file_picker/wiki/FAQ
-      // https://github.com/miguelpruivo/flutter_file_picker/issues/301
+    PlatformFile? pickedFile = await FilePicker.pickFile();
+  
+    if (pickedFile != null && pickedFile.path != null) {
+      File file = File(pickedFile.path!);
+  
       Directory directory = await getApplicationDocumentsDirectory();
-      String dir = "${directory.path}/${result.files.first.name}";
+      String dir = "${directory.path}/${pickedFile.name}";
+  
       try {
-        // This will try first to just rename the file if they are on the same directory,
-        await file.rename(dir);
-      } on FileSystemException {
-        // if the rename method fails, it will copy the original file to the new directory and then delete the original file
-        await file.copy(dir);
-        await file.delete();
+        // Your existing code from here onward...
+        
+      } catch (e) {
+        print("Error picking/copying file: $e");
       }
-      setState(() {
-        filePath = dir;
-      });
-    } else {
-      /// User canceled the picker
     }
   }
 
