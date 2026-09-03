@@ -1143,7 +1143,9 @@ class _OrgState extends State<Org> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "VolunteerConnect"
+                  'VolunteerConnect',
+                  style: style,
+                  textAlign: TextAlign.center,
                 ),
               ]),
         ),
