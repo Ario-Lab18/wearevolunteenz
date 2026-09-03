@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => MyAppState(),
       child: MaterialApp(
-        title: 'wearevolunteenz',
+        title: 'VolunteerConnect',
         theme: ThemeData(
           sliderTheme: const SliderThemeData(
             showValueIndicator: ShowValueIndicator.never,
@@ -1143,15 +1143,7 @@ class _OrgState extends State<Org> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'weare',
-                  style: style,
-                  textAlign: TextAlign.center,
-                ),
-                Image.asset('assets/logo.png', scale: 6),
-                Text(
-                  'olunteenz',
-                  style: style,
-                  textAlign: TextAlign.center,
+                  "VolunteerConnect"
                 ),
               ]),
         ),
