@@ -72,7 +72,7 @@
 	<false/>
 
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs access to location when open.</string>
+	<string>We use your location to filter out opportunities based on their distance from you.</string>
 
 </dict>
 </plist>
