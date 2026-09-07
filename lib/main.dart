@@ -15,6 +15,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /*
 git add <files>
@@ -510,6 +511,389 @@ class _FilterPageState extends State<FilterPage> {
                     ),
                   ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PreferencesPage extends StatefulWidget {
+  const PreferencesPage({super.key});
+
+  @override
+  State<PreferencesPage> createState() => _PreferencesPageState();
+}
+
+class _PreferencesPageState extends State<PreferencesPage> {
+  final TextEditingController searchText = TextEditingController();
+  final TextEditingController locText = TextEditingController();
+
+  final List<int> sliderValues = [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12,
+    14,
+    16,
+    18,
+    20,
+    22,
+    24,
+    26,
+    28,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70,
+    80,
+    90,
+    100,
+    110,
+    120,
+    130,
+    140,
+    150
+  ];
+
+  int radius = 1;
+  bool signUp = false;
+  bool virtual = false;
+
+  DateTimeRange dateRange = DateTimeRange(
+    start: DateTime.now(),
+    end: DateTime.now().add(const Duration(days: 365)),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final startMillis = prefs.getInt('preference_date_start');
+    final endMillis = prefs.getInt('preference_date_end');
+
+    setState(() {
+      searchText.text = prefs.getString('preference_search') ?? '';
+      locText.text = prefs.getString('preference_location') ?? '';
+
+      radius = prefs.getInt('preference_radius') ?? 1;
+      signUp = prefs.getBool('preference_signup') ?? false;
+      virtual = prefs.getBool('preference_virtual') ?? false;
+
+      if (startMillis != null && endMillis != null) {
+        dateRange = DateTimeRange(
+          start: DateTime.fromMillisecondsSinceEpoch(startMillis),
+          end: DateTime.fromMillisecondsSinceEpoch(endMillis),
+        );
+      }
+    });
+  }
+
+  Future<void> _savePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString(
+      'preference_search',
+      searchText.text,
+    );
+
+    await prefs.setString(
+      'preference_location',
+      locText.text,
+    );
+
+    await prefs.setInt(
+      'preference_radius',
+      radius,
+    );
+
+    await prefs.setBool(
+      'preference_signup',
+      signUp,
+    );
+
+    await prefs.setBool(
+      'preference_virtual',
+      virtual,
+    );
+
+    await prefs.setInt(
+      'preference_date_start',
+      dateRange.start.millisecondsSinceEpoch,
+    );
+
+    await prefs.setInt(
+      'preference_date_end',
+      dateRange.end.millisecondsSinceEpoch,
+    );
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Preferences saved'),
+      ),
+    );
+  }
+
+  Future<void> _pickDateRange() async {
+    final DateTimeRange? newDateRange =
+        await showDateRangePicker(
+      context: context,
+      initialDateRange: dateRange,
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+      builder: (context, Widget? child) => Theme(
+        data: ThemeData.light().copyWith(
+          dialogTheme: const DialogThemeData(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(0.0),
+              ),
+            ),
+          ),
+          textTheme: const TextTheme(
+            titleSmall: TextStyle(fontSize: 20.0),
+            titleLarge: TextStyle(fontSize: 16.0),
+            labelLarge: TextStyle(fontSize: 20.0),
+            headlineLarge: TextStyle(fontSize: 16.0),
+            bodyMedium: TextStyle(color: Colors.black),
+            bodyLarge: TextStyle(color: Colors.black),
+          ),
+          useMaterial3: true,
+          colorScheme: const ColorScheme.light(
+            background: Color.fromARGB(255, 255, 0, 0),
+            secondaryContainer: Color.fromARGB(255, 255, 237, 102),
+            surface: Color.fromARGB(255, 253, 253, 188),
+            primary: Color.fromARGB(255, 0, 206, 203),
+          ),
+        ),
+        child: child!,
+      ),
+    );
+
+    if (newDateRange == null) {
+      return;
+    }
+
+    setState(() {
+      dateRange = newDateRange;
+    });
+  }
+
+  @override
+  void dispose() {
+    searchText.dispose();
+    locText.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final start = dateRange.start;
+    final end = dateRange.end;
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.primary,
+        title: const Text('Preferences'),
+      ),
+
+      body: Padding(
+        padding: const EdgeInsets.all(25.0),
+        child: Column(
+          children: [
+            TextFormField(
+              controller: searchText,
+              decoration: const InputDecoration(
+                isDense: true,
+                contentPadding: EdgeInsets.only(left: 0),
+                prefixIcon: Icon(Icons.search),
+                filled: true,
+                border: OutlineInputBorder(),
+                hintText: 'Search',
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            TextFormField(
+              controller: locText,
+              decoration: const InputDecoration(
+                isDense: true,
+                contentPadding: EdgeInsets.only(left: 0),
+                prefixIcon: Icon(Icons.room),
+                filled: true,
+                border: OutlineInputBorder(),
+                hintText: 'Location',
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Row(
+              children: [
+                const Icon(Icons.my_location),
+
+                SizedBox(
+                  width: 125,
+                  child: Text(
+                    "  Within ${radius.toString()} miles",
+                  ),
+                ),
+
+                Expanded(
+                  child: Slider(
+                    min: 0,
+                    max: sliderValues.length.toDouble() - 1,
+                    divisions: sliderValues.length,
+                    activeColor: theme.colorScheme.primary,
+                    inactiveColor:
+                        HSLColor.fromColor(theme.colorScheme.primary)
+                            .withLightness(0.9)
+                            .toColor(),
+                    value: sliderValues.indexOf(radius).toDouble(),
+                    onChanged: (value) {
+                      setState(() {
+                        radius = sliderValues[value.toInt()];
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 15),
+
+            SizedBox(
+              width: double.infinity,
+              height: 38,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  padding: const EdgeInsets.all(10.0),
+                  shape: const RoundedRectangleBorder(
+                    side: BorderSide(
+                      color: Colors.black,
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(5),
+                    ),
+                  ),
+                ),
+
+                onPressed: _pickDateRange,
+
+                icon: const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Icon(
+                    Icons.date_range,
+                    color: Colors.black,
+                  ),
+                ),
+
+                label: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    " ${DateFormat('MMM d, yyyy').format(start)} "
+                    "12AM to "
+                    "${DateFormat('MMM d, yyyy').format(end)} "
+                    "12AM",
+                    style: const TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 35),
+
+            Row(
+              children: [
+                Checkbox(
+                  value: signUp,
+                  onChanged: (state) {
+                    setState(() {
+                      signUp = state ?? false;
+                    });
+                  },
+                  checkColor: Colors.white,
+                  fillColor: signUp
+                      ? MaterialStateProperty.all(Colors.black)
+                      : MaterialStateProperty.all(
+                          theme.colorScheme.background,
+                        ),
+                ),
+
+                const Text(
+                  "Instant Sign-up Opportunities",
+                ),
+              ],
+            ),
+
+            Row(
+              children: [
+                Checkbox(
+                  value: virtual,
+                  onChanged: (state) {
+                    setState(() {
+                      virtual = state ?? false;
+                    });
+                  },
+                  checkColor: Colors.white,
+                  fillColor: virtual
+                      ? MaterialStateProperty.all(Colors.black)
+                      : MaterialStateProperty.all(
+                          theme.colorScheme.background,
+                        ),
+                ),
+
+                const Text("Virtual"),
+              ],
+            ),
+
+            const Expanded(
+              child: SizedBox(),
+            ),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.secondary,
+                ),
+
+                onPressed: _savePreferences,
+
+                child: Text(
+                  "Save",
+                  style: TextStyle(
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
@@ -1148,6 +1532,19 @@ class _OrgState extends State<Org> {
                   textAlign: TextAlign.center,
                 ),
               ]),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PreferencesPage(),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
         body: FutureBuilder<Map<String, dynamic>>(
             future: _future,
