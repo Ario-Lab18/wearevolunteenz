@@ -1244,19 +1244,6 @@ class _OrgState extends State<Org> {
                   textAlign: TextAlign.center,
                 ),
               ]),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PreferencesPage(),
-                  ),
-                );
-              },
-            ),
-          ],
         ),
         body: FutureBuilder<Map<String, dynamic>>(
             future: _future,
